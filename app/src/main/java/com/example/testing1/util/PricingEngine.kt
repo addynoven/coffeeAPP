@@ -21,9 +21,9 @@ object PricingEngine {
         // 1. Calculate Subtotal (with size modifiers if any)
         val subtotal = items.sumOf { item ->
             val basePrice = item.coffee.price
-            val sizeModifier = when (item.cartItem.size.lowercase()) {
-                "medium" -> 0.5
-                "large" -> 1.0
+            val sizeModifier = when (item.cartItem.size.uppercase()) {
+                "M" -> 0.5
+                "L" -> 1.0
                 else -> 0.0
             }
             (basePrice + sizeModifier) * item.cartItem.quantity

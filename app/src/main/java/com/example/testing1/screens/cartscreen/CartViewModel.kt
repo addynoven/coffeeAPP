@@ -62,7 +62,7 @@ class CartViewModel @Inject constructor(
                     deliveryFee = pricing.deliveryFee,
                     isLoading = false
                 )
-            }
+            }.collect {}
         }
     }
 

@@ -135,7 +135,7 @@ def sync_to_supabase(catalog_item, image_url):
         "description_it": catalog_item.get('description_it')
     }
     
-    url = f"{SUPABASE_URL}/rest/v1/coffee"
+    url = f"{SUPABASE_URL}/rest/v1/coffee?on_conflict=name"
     response = requests.post(url, headers=headers, json=data)
     if response.status_code not in [200, 201]:
         print(f"Error syncing {catalog_item['name']}: {response.text}")

@@ -443,7 +443,7 @@ fun ProfileMenuItem(icon: ImageVector, title: String, onClick: () -> Unit) {
 fun ProfileScreenPreview() {
     ProfileScreen(
         uiState = ProfileUiState(
-            user = UserEntity(name = "Anas", email = "anas@test.com"),
+            user = UserEntity(id = "1", name = "Anas", email = "anas@test.com"),
             isLoading = false
         ),
         onHomeClick = {},

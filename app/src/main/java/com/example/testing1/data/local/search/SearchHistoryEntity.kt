@@ -21,7 +21,7 @@ import com.example.testing1.data.local.user.UserEntity
 data class SearchHistoryEntity(
     @PrimaryKey(autoGenerate = true)
     val searchId: Int = 0,
-    val userId: Int = 1,
+    val userId: String,
     val query: String,
     val resultCount: Int,
     val timestamp: Long = System.currentTimeMillis()

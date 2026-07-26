@@ -16,6 +16,7 @@ class DatabaseInitializer @Inject constructor(
         if (userDao.getUserCount() == 0) {
             userDao.upsertUser(
                 UserEntity(
+                    id = "dev_user_123",
                     name = "Mohammad Anas",
                     email = "anas@example.com"
                 )
@@ -27,7 +28,8 @@ class DatabaseInitializer @Inject constructor(
                 AddressEntity(
                     tag = "Home",
                     fullAddress = "Janatha Road, Palarivattom, Ernakulam, Kerala - 682025",
-                    isDefault = true
+                    isDefault = true,
+                    userId = "dev_user_123"
                 )
             )
         }

@@ -16,6 +16,7 @@ class SettingsRepository @Inject constructor(
 ) {
     private object PreferencesKeys {
         val THEME_CONFIG = stringPreferencesKey("theme_config")
+        val LAST_COFFEE_SYNC = stringPreferencesKey("last_coffee_sync")
     }
 
     fun getThemeConfig(): Flow<ThemeConfig> = dataStore.data.map { preferences ->
@@ -30,6 +31,16 @@ class SettingsRepository @Inject constructor(
     suspend fun setThemeConfig(config: ThemeConfig) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME_CONFIG] = config.name
+        }
+    }
+
+    fun getLastCoffeeSync(): Flow<String> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_COFFEE_SYNC] ?: "1970-01-01T00:00:00Z"
+    }
+
+    suspend fun setLastCoffeeSync(timestamp: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_COFFEE_SYNC] = timestamp
         }
     }
 }

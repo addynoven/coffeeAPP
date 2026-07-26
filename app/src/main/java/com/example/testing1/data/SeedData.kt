@@ -37,6 +37,14 @@ object SeedData {
             category = CoffeeCategory.Espresso,
             price = 3.8,
             imageUrl = "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=500"
+        ),
+        CoffeeEntity(
+            id = 5,
+            name = "Flat White",
+            description = "Rich and velvety",
+            category = CoffeeCategory.Latte,
+            price = 4.2,
+            imageUrl = "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=500"
         )
     )
 }

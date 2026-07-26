@@ -12,5 +12,7 @@ data class RemoteCoffee(
     val category: CoffeeCategory,
     val price: Double,
     @SerialName("image_url")
-    val imageUrl: String
+    val imageUrl: String,
+    @SerialName("updated_at")
+    val updatedAt: String
 )

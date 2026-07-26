@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Latte",
+    "description": "Smooth and creamy",
+    "category": "Latte",
+    "price": 4.5,
+    "local_image": "app/src/main/res/drawable/coffee_1.png",
+    "public_id": "coffee_1"
+  },
+  {
+    "name": "Cappuccino",
+    "description": "With thick foam",
+    "category": "Cappuccino",
+    "price": 4.8,
+    "local_image": "app/src/main/res/drawable/coffee_2.png",
+    "public_id": "coffee_2"
+  },
+  {
+    "name": "Macchiato",
+    "description": "Espresso with hot water",
+    "category": "Macchiato",
+    "price": 3.5,
+    "local_image": "app/src/main/res/drawable/coffee_3.png",
+    "public_id": "coffee_3"
+  },
+  {
+    "name": "Espresso",
+    "description": "Strong and rich",
+    "category": "Espresso",
+    "price": 3.8,
+    "local_image": "app/src/main/res/drawable/coffee_4.png",
+    "public_id": "coffee_4"
+  },
+  {
+    "name": "Flat White",
+    "description": "Rich and velvety",
+    "category": "Flat White",
+    "price": 4.2,
+    "local_image": "app/src/main/res/drawable/coffee_5.png",
+    "public_id": "coffee_5"
+  }
+]

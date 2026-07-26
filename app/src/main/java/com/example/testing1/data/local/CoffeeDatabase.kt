@@ -28,7 +28,7 @@ import com.example.testing1.data.local.user.UserEntity
         OrderItemEntity::class,
         SearchHistoryEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class CoffeeDatabase : RoomDatabase() {

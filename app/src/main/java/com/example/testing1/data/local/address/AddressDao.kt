@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AddressDao {
-    @Query("SELECT * FROM addresses WHERE userId = 1 ORDER BY lastUsedTimestamp DESC")
-    fun getAddresses(): Flow<List<AddressEntity>>
+    @Query("SELECT * FROM addresses WHERE userId = :userId ORDER BY lastUsedTimestamp DESC")
+    fun getAddresses(userId: String): Flow<List<AddressEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAddress(address: AddressEntity)
@@ -23,12 +23,12 @@ interface AddressDao {
     @Delete
     suspend fun deleteAddress(address: AddressEntity)
 
-    @Query("UPDATE addresses SET isDefault = 0 WHERE userId = 1")
-    suspend fun clearDefaults()
+    @Query("UPDATE addresses SET isDefault = 0 WHERE userId = :userId")
+    suspend fun clearDefaults(userId: String)
 
     @Transaction
-    suspend fun setAsDefault(addressId: Int) {
-        clearDefaults()
+    suspend fun setAsDefault(userId: String, addressId: Int) {
+        clearDefaults(userId)
         setAsDefaultById(addressId)
     }
 

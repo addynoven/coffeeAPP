@@ -58,6 +58,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             repository.updateUser(
                 UserEntity(
+                    id = CoffeeRepository.CURRENT_USER_ID,
                     name = currentState.editName,
                     email = currentState.editEmail
                 )
@@ -94,6 +95,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             repository.addAddress(
                 AddressEntity(
+                    userId = CoffeeRepository.CURRENT_USER_ID,
                     tag = currentState.newAddressTag,
                     fullAddress = currentState.newAddressText,
                     isDefault = currentState.addresses.isEmpty()

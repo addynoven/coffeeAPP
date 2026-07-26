@@ -29,8 +29,8 @@ object DatabaseModule {
             context,
             CoffeeDatabase::class.java,
             "coffee_database"
-        ).fallbackToDestructiveMigration()
-        .build()
+        ).fallbackToDestructiveMigration(true)
+            .build()
     }
 
     @Provides

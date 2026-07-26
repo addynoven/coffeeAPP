@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class OrderEntity(
     @PrimaryKey(autoGenerate = true)
     val orderId: Int = 0,
-    val userId: Int = 1,
+    val userId: String,
     val timestamp: Long = System.currentTimeMillis(),
     val totalPrice: Double,
     val status: String = "Preparing", // Preparing, Delivered, etc.

@@ -10,12 +10,12 @@ interface SearchDao {
     @Insert
     suspend fun insertSearch(search: SearchHistoryEntity)
 
-    @Query("SELECT * FROM search_history WHERE userId = 1 ORDER BY timestamp DESC LIMIT 10")
-    fun getRecentSearches(): Flow<List<SearchHistoryEntity>>
+    @Query("SELECT * FROM search_history WHERE userId = :userId ORDER BY timestamp DESC LIMIT 10")
+    fun getRecentSearches(userId: String): Flow<List<SearchHistoryEntity>>
 
-    @Query("DELETE FROM search_history WHERE userId = 1 AND searchId NOT IN (SELECT searchId FROM search_history WHERE userId = 1 ORDER BY timestamp DESC LIMIT 50)")
-    suspend fun deleteOldSearches()
+    @Query("DELETE FROM search_history WHERE userId = :userId AND searchId NOT IN (SELECT searchId FROM search_history WHERE userId = :userId ORDER BY timestamp DESC LIMIT 50)")
+    suspend fun deleteOldSearches(userId: String)
 
-    @Query("DELETE FROM search_history WHERE userId = 1")
-    suspend fun clearHistory()
+    @Query("DELETE FROM search_history WHERE userId = :userId")
+    suspend fun clearHistory(userId: String)
 }

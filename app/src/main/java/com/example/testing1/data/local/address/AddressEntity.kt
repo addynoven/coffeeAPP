@@ -21,7 +21,7 @@ import com.example.testing1.data.local.user.UserEntity
 data class AddressEntity(
     @PrimaryKey(autoGenerate = true)
     val addressId: Int = 0,
-    val userId: Int = 1,
+    val userId: String,
     val tag: String, // Home, Work, etc.
     val fullAddress: String,
     val isDefault: Boolean = false,

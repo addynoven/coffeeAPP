@@ -15,6 +15,6 @@ interface OrderDao {
     suspend fun insertOrderItems(items: List<OrderItemEntity>)
 
     @Transaction
-    @Query("SELECT * FROM orders WHERE userId = 1 ORDER BY timestamp DESC")
-    fun getOrders(): Flow<List<OrderWithItems>>
+    @Query("SELECT * FROM orders WHERE userId = :userId ORDER BY timestamp DESC")
+    fun getOrders(userId: String): Flow<List<OrderWithItems>>
 }

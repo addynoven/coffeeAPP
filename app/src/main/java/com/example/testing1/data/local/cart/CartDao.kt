@@ -21,9 +21,9 @@ interface CartDao {
     suspend fun removeFromCart(cartEntity: CartEntity)
 
     @Transaction
-    @Query("SELECT * FROM cart")
-    fun getCartItems(): Flow<List<CartItemWithCoffee>>
+    @Query("SELECT * FROM cart WHERE userId = :userId")
+    fun getCartItems(userId: String): Flow<List<CartItemWithCoffee>>
 
-    @Query("SELECT * FROM cart WHERE coffeeId = :coffeeId AND size = :size LIMIT 1")
-    suspend fun getCartItemByCoffeeAndSize(coffeeId: Int, size: String): CartEntity?
+    @Query("SELECT * FROM cart WHERE userId = :userId AND coffeeId = :coffeeId AND size = :size LIMIT 1")
+    suspend fun getCartItemByCoffeeAndSize(userId: String, coffeeId: Int, size: String): CartEntity?
 }

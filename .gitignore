@@ -18,6 +18,8 @@
 local.properties
 .env
 secret.json
+.python-version
+.venv
 
 # Build and Gradle
 .gradle/

@@ -65,6 +65,7 @@
     <!-- Settings Screen -->
     <string name="settings_title">الإعدادات</string>
     <string name="theme_preference_title">تفضيلات المظهر</string>
+    <string name="language_preference_title">تفضيلات اللغة</string>
     <string name="follow_system_label">حسب النظام</string>
     <string name="light_mode_label">الوضع الفاتح</string>
     <string name="dark_mode_label">الوضع الداكن</string>

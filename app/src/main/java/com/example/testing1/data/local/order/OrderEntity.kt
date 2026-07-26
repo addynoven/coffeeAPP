@@ -2,6 +2,7 @@ package com.example.testing1.data.local.order
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.testing1.models.OrderStatus
 
 @Entity(tableName = "orders")
 data class OrderEntity(
@@ -10,6 +11,6 @@ data class OrderEntity(
     val userId: String,
     val timestamp: Long = System.currentTimeMillis(),
     val totalPrice: Double,
-    val status: String = "Preparing", // Preparing, Delivered, etc.
+    val status: OrderStatus = OrderStatus.PREPARING,
     val snapshotAddress: String // Immutable copy of address at time of order
 )

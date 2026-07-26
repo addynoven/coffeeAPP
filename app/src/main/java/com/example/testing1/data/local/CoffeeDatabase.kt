@@ -9,6 +9,8 @@ import com.example.testing1.data.local.cart.CartDao
 import com.example.testing1.data.local.cart.CartEntity
 import com.example.testing1.data.local.coffee.CoffeeDao
 import com.example.testing1.data.local.coffee.CoffeeEntity
+import com.example.testing1.data.local.discount.DiscountDao
+import com.example.testing1.data.local.discount.DiscountEntity
 import com.example.testing1.data.local.order.OrderDao
 import com.example.testing1.data.local.order.OrderEntity
 import com.example.testing1.data.local.order.OrderItemEntity
@@ -26,9 +28,10 @@ import com.example.testing1.data.local.user.UserEntity
         AddressEntity::class,
         OrderEntity::class,
         OrderItemEntity::class,
-        SearchHistoryEntity::class
+        SearchHistoryEntity::class,
+        DiscountEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class CoffeeDatabase : RoomDatabase() {
@@ -38,4 +41,5 @@ abstract class CoffeeDatabase : RoomDatabase() {
     abstract fun addressDao(): AddressDao
     abstract fun orderDao(): OrderDao
     abstract fun searchDao(): SearchDao
+    abstract fun discountDao(): DiscountDao
 }

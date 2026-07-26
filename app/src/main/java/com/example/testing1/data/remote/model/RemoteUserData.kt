@@ -88,3 +88,41 @@ data class RemoteSearchHistory(
     @SerialName("timestamp")
     val timestamp: Long
 )
+
+@Serializable
+data class RemoteDiscount(
+    @SerialName("code")
+    val code: String,
+    @SerialName("description")
+    val description: String,
+    @SerialName("type")
+    val type: String,
+    @SerialName("value")
+    val value: Double,
+    @SerialName("min_order_amount")
+    val minOrderAmount: Double,
+    @SerialName("max_discount_amount")
+    val maxDiscountAmount: Double? = null
+)
+
+@Serializable
+data class OrderItemParams(
+    @SerialName("coffee_id")
+    val coffeeId: Int,
+    @SerialName("quantity")
+    val quantity: Int,
+    @SerialName("size")
+    val size: String
+)
+
+@Serializable
+data class PlaceOrderParams(
+    @SerialName("p_user_id")
+    val userId: String,
+    @SerialName("p_address_tag")
+    val addressTag: String,
+    @SerialName("p_discount_code")
+    val discountCode: String?,
+    @SerialName("p_items")
+    val items: List<OrderItemParams>
+)

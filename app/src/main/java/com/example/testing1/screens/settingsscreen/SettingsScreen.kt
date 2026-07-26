@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.testing1.R
+import com.example.testing1.data.settings.AppLanguage
 import com.example.testing1.data.settings.ThemeConfig
 
 @Composable
@@ -43,7 +46,8 @@ fun SettingsRoute(
     SettingsScreen(
         uiState = uiState,
         onBackClick = onBackClick,
-        onThemeChange = viewModel::onThemeConfigChange
+        onThemeChange = viewModel::onThemeConfigChange,
+        onLanguageChange = viewModel::onLanguageChange
     )
 }
 
@@ -52,12 +56,19 @@ fun SettingsRoute(
 fun SettingsScreen(
     uiState: SettingsUiState,
     onBackClick: () -> Unit,
-    onThemeChange: (ThemeConfig) -> Unit
+    onThemeChange: (ThemeConfig) -> Unit,
+    onLanguageChange: (AppLanguage) -> Unit
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.settings_title), fontSize = 18.sp, fontWeight = FontWeight.SemiBold) },
+                title = {
+                    Text(
+                        stringResource(R.string.settings_title),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
@@ -71,42 +82,95 @@ fun SettingsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = stringResource(R.string.theme_preference_title),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ThemeOption(
+                    title = stringResource(R.string.follow_system_label),
+                    selected = uiState.themeConfig == ThemeConfig.FOLLOW_SYSTEM,
+                    onClick = { onThemeChange(ThemeConfig.FOLLOW_SYSTEM) }
+                )
+                ThemeOption(
+                    title = stringResource(R.string.light_mode_label),
+                    selected = uiState.themeConfig == ThemeConfig.LIGHT,
+                    onClick = { onThemeChange(ThemeConfig.LIGHT) }
+                )
+                ThemeOption(
+                    title = stringResource(R.string.dark_mode_label),
+                    selected = uiState.themeConfig == ThemeConfig.DARK,
+                    onClick = { onThemeChange(ThemeConfig.DARK) }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = stringResource(R.string.language_preference_title),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            items(AppLanguage.entries) { language ->
+                LanguageOption(
+                    title = language.displayName,
+                    selected = uiState.selectedLanguage == language,
+                    onClick = { onLanguageChange(language) }
+                )
+            }
             
-            Text(
-                text = stringResource(R.string.theme_preference_title),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            ThemeOption(
-                title = stringResource(R.string.follow_system_label),
-                selected = uiState.themeConfig == ThemeConfig.FOLLOW_SYSTEM,
-                onClick = { onThemeChange(ThemeConfig.FOLLOW_SYSTEM) }
-            )
-            ThemeOption(
-                title = stringResource(R.string.light_mode_label),
-                selected = uiState.themeConfig == ThemeConfig.LIGHT,
-                onClick = { onThemeChange(ThemeConfig.LIGHT) }
-            )
-            ThemeOption(
-                title = stringResource(R.string.dark_mode_label),
-                selected = uiState.themeConfig == ThemeConfig.DARK,
-                onClick = { onThemeChange(ThemeConfig.DARK) }
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
+    }
+}
+
+@Composable
+fun LanguageOption(
+    title: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 14.sp
+        )
+        RadioButton(
+            selected = selected,
+            onClick = null, // Handled by row click
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.primary
+            )
+        )
     }
 }
 

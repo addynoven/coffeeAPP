@@ -71,6 +71,7 @@ fun CartScreenPreview() {
         onProfileClick = {},
         onUpdateQuantity = { _, _ -> },
         onAddressSelected = {},
+        onDiscountSelected = {},
         onPlaceOrder = {},
         onDismissSuccess = {}
     )
@@ -96,6 +97,7 @@ fun CartRoute(
         onProfileClick = onProfileClick,
         onUpdateQuantity = viewModel::updateQuantity,
         onAddressSelected = viewModel::onAddressSelected,
+        onDiscountSelected = viewModel::onDiscountSelected,
         onPlaceOrder = viewModel::placeOrder,
         onDismissSuccess = viewModel::dismissOrderSuccess
     )
@@ -112,6 +114,7 @@ fun CartScreen(
     onProfileClick: () -> Unit,
     onUpdateQuantity: (CartEntity, Int) -> Unit,
     onAddressSelected: (AddressEntity) -> Unit,
+    onDiscountSelected: (com.example.testing1.models.Discount?) -> Unit,
     onPlaceOrder: () -> Unit,
     onDismissSuccess: () -> Unit
 ) {
@@ -147,7 +150,7 @@ fun CartScreen(
         bottomBar = {
             Column {
                 BottomOrderBar(
-                    totalPrice = uiState.totalPrice + uiState.deliveryFee,
+                    totalPrice = uiState.totalPrice,
                     onPlaceOrder = onPlaceOrder
                 )
                 MyBottomBar(
@@ -214,6 +217,34 @@ fun CartScreen(
                 )
             }
 
+            if (uiState.availableDiscounts.isNotEmpty()) {
+                item {
+                    Text(
+                        text = "Available Discounts",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        item {
+                            DiscountChip(
+                                discount = null,
+                                isSelected = uiState.selectedDiscount == null,
+                                onClick = { onDiscountSelected(null) }
+                            )
+                        }
+                        items(uiState.availableDiscounts) { discount ->
+                            DiscountChip(
+                                discount = discount,
+                                isSelected = uiState.selectedDiscount?.code == discount.code,
+                                onClick = { onDiscountSelected(discount) }
+                            )
+                        }
+                    }
+                }
+            }
+
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -223,11 +254,62 @@ fun CartScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                PaymentRow(stringResource(R.string.price_label), "$ ${"%.2f".format(uiState.totalPrice)}")
+                PaymentRow(stringResource(R.string.price_label), "$ ${"%.2f".format(uiState.subtotal)}")
+                if (uiState.discountAmount > 0) {
+                    PaymentRow("Discount", "- $ ${"%.2f".format(uiState.discountAmount)}", color = Color(0xFF4CAF50))
+                }
                 PaymentRow(stringResource(R.string.delivery_fee_label), "$ ${"%.2f".format(uiState.deliveryFee)}")
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                PaymentRow("Total Payment", "$ ${"%.2f".format(uiState.totalPrice)}", isBold = true)
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+}
+
+@Composable
+fun DiscountChip(
+    discount: com.example.testing1.models.Discount?,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant)
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = discount?.code ?: "None",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun PaymentRow(label: String, value: String, isBold: Boolean = false, color: Color = MaterialTheme.colorScheme.onBackground) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+            color = if (isBold) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+            color = color
+        )
     }
 }
 

@@ -6,6 +6,7 @@ import com.example.testing1.data.local.CoffeeDatabase
 import com.example.testing1.data.local.address.AddressDao
 import com.example.testing1.data.local.cart.CartDao
 import com.example.testing1.data.local.coffee.CoffeeDao
+import com.example.testing1.data.local.discount.DiscountDao
 import com.example.testing1.data.local.order.OrderDao
 import com.example.testing1.data.local.search.SearchDao
 import com.example.testing1.data.local.user.UserDao
@@ -73,5 +74,12 @@ object DatabaseModule {
         database: CoffeeDatabase
     ): SearchDao {
         return database.searchDao()
+    }
+
+    @Provides
+    fun provideDiscountDao(
+        database: CoffeeDatabase
+    ): DiscountDao {
+        return database.discountDao()
     }
 }

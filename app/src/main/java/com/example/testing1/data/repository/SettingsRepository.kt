@@ -17,6 +17,7 @@ class SettingsRepository @Inject constructor(
     private object PreferencesKeys {
         val THEME_CONFIG = stringPreferencesKey("theme_config")
         val LAST_COFFEE_SYNC = stringPreferencesKey("last_coffee_sync")
+        val SELECTED_LANGUAGE = stringPreferencesKey("selected_language")
     }
 
     fun getThemeConfig(): Flow<ThemeConfig> = dataStore.data.map { preferences ->
@@ -41,6 +42,16 @@ class SettingsRepository @Inject constructor(
     suspend fun setLastCoffeeSync(timestamp: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.LAST_COFFEE_SYNC] = timestamp
+        }
+    }
+
+    fun getSelectedLanguage(): Flow<String> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SELECTED_LANGUAGE] ?: ""
+    }
+
+    suspend fun setSelectedLanguage(languageCode: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SELECTED_LANGUAGE] = languageCode
         }
     }
 }

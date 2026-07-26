@@ -65,6 +65,7 @@
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
     <string name="theme_preference_title">Theme Preference</string>
+    <string name="language_preference_title">Language Preference</string>
     <string name="follow_system_label">Follow System</string>
     <string name="light_mode_label">Light Mode</string>
     <string name="dark_mode_label">Dark Mode</string>
@@ -85,4 +86,7 @@
     <string name="category_espresso">Espresso</string>
     <string name="category_flat_white">Flat White</string>
     <string name="status_preparing">Preparing</string>
+    <string name="status_in_delivery">In Delivery</string>
+    <string name="status_delivered">Delivered</string>
+    <string name="status_cancelled">Cancelled</string>
 </resources>

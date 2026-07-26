@@ -28,5 +28,10 @@ sealed class Routes {
     data object OrderHistoryScreen : Routes()
 
     @Serializable
+    data class TrackOrderScreen(
+        val orderId: Int
+    ) : Routes()
+
+    @Serializable
     data object SettingsScreen : Routes()
 }

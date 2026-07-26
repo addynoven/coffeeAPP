@@ -1,5 +1,6 @@
 package com.example.testing1.screens.profilescreen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,17 +44,23 @@ import java.util.Date
 @Composable
 fun OrderHistoryRoute(
     onBackClick: () -> Unit,
+    onOrderClick: (Int) -> Unit,
     viewModel: OrderHistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    OrderHistoryScreen(uiState = uiState, onBackClick = onBackClick)
+    OrderHistoryScreen(
+        uiState = uiState,
+        onBackClick = onBackClick,
+        onOrderClick = onOrderClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryScreen(
     uiState: OrderHistoryUiState,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onOrderClick: (Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -104,7 +111,10 @@ fun OrderHistoryScreen(
             ) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
                 items(uiState.orders) { orderWithItems ->
-                    OrderCard(orderWithItems)
+                    OrderCard(
+                        orderWithItems = orderWithItems,
+                        onClick = { onOrderClick(orderWithItems.order.orderId) }
+                    )
                 }
                 item { Spacer(modifier = Modifier.height(24.dp)) }
             }
@@ -113,7 +123,10 @@ fun OrderHistoryScreen(
 }
 
 @Composable
-fun OrderCard(orderWithItems: OrderWithItems) {
+fun OrderCard(
+    orderWithItems: OrderWithItems,
+    onClick: () -> Unit
+) {
     val locale =
         androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     val dateFormat =
@@ -121,7 +134,9 @@ fun OrderCard(orderWithItems: OrderWithItems) {
     val dateString = dateFormat.format(Date(orderWithItems.order.timestamp))
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -141,7 +156,7 @@ fun OrderCard(orderWithItems: OrderWithItems) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = if (orderWithItems.order.status == "Preparing") stringResource(R.string.status_preparing) else orderWithItems.order.status,
+                    text = stringResource(orderWithItems.order.status.labelRes),
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.primary

@@ -12,6 +12,7 @@ import com.example.testing1.screens.homescreen.HomeRoute
 import com.example.testing1.screens.profilescreen.OrderHistoryRoute
 import com.example.testing1.screens.profilescreen.ProfileRoute
 import com.example.testing1.screens.settingsscreen.SettingsRoute
+import com.example.testing1.screens.trackorderscreen.TrackOrderRoute
 import com.example.testing1.screens.welcomescreen.WelcomeScreen
 
 
@@ -119,6 +120,18 @@ fun AppNavGraph() {
 
         composable<Routes.OrderHistoryScreen> {
             OrderHistoryRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onOrderClick = { orderId ->
+                    navController.navigate(Routes.TrackOrderScreen(orderId))
+                }
+            )
+        }
+
+        composable<Routes.TrackOrderScreen> { backStackEntry ->
+            val route = backStackEntry.toRoute<Routes.TrackOrderScreen>()
+            TrackOrderRoute(
                 onBackClick = {
                     navController.popBackStack()
                 }

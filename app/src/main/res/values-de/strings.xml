@@ -65,6 +65,7 @@
     <!-- Settings Screen -->
     <string name="settings_title">Einstellungen</string>
     <string name="theme_preference_title">Design-Einstellung</string>
+    <string name="language_preference_title">Spracheinstellung</string>
     <string name="follow_system_label">System folgen</string>
     <string name="light_mode_label">Heller Modus</string>
     <string name="dark_mode_label">Dunkler Modus</string>

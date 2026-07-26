@@ -65,6 +65,7 @@
     <!-- Settings Screen -->
     <string name="settings_title">設定</string>
     <string name="theme_preference_title">テーマ設定</string>
+    <string name="language_preference_title">言語設定</string>
     <string name="follow_system_label">システム設定に従う</string>
     <string name="light_mode_label">ライトモード</string>
     <string name="dark_mode_label">ダークモード</string>

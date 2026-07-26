@@ -11,6 +11,7 @@ import com.example.testing1.data.local.order.OrderDao
 import com.example.testing1.data.local.order.OrderEntity
 import com.example.testing1.data.local.order.OrderItemEntity
 import com.example.testing1.data.local.order.OrderWithItems
+import com.example.testing1.models.OrderStatus
 import com.example.testing1.data.local.search.SearchDao
 import com.example.testing1.data.local.search.SearchHistoryEntity
 import com.example.testing1.data.local.user.UserDao
@@ -18,6 +19,8 @@ import com.example.testing1.data.local.user.UserEntity
 import com.example.testing1.data.remote.model.*
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -30,6 +33,7 @@ class CoffeeRepository @Inject constructor(
     private val orderDao: OrderDao,
     private val searchDao: SearchDao,
     private val settingsRepository: SettingsRepository,
+    private val discountRepository: DiscountRepository,
     private val supabase: SupabaseClient
 ) {
     companion object {
@@ -105,6 +109,9 @@ class CoffeeRepository @Inject constructor(
 
                 println("Sync Catalog: Completed. Last sync set to $latestTimestamp")
             }
+
+            // Sync Discounts
+            discountRepository.refreshDiscounts()
 
             // F. Sync User Data (Favorites, Cart, etc.)
             syncUserData()
@@ -315,59 +322,68 @@ class CoffeeRepository @Inject constructor(
     // Order Operations
     fun getOrders(): Flow<List<OrderWithItems>> = orderDao.getOrders(CURRENT_USER_ID)
 
-    suspend fun placeOrder(address: AddressEntity, totalPrice: Double) {
+    fun getOrderById(orderId: Int): Flow<OrderWithItems?> = orderDao.getOrderById(orderId)
+
+    suspend fun updateOrderStatus(orderId: Int, status: OrderStatus) {
+        orderDao.updateOrderStatus(orderId, status)
+        // Optionally update remote as well
+        try {
+            supabase.from("orders").update(mapOf("status" to status.name)) {
+                filter { eq("id", orderId) }
+            }
+        } catch (e: Exception) {}
+    }
+
+    suspend fun placeOrder(address: AddressEntity, discountCode: String? = null) {
         addressDao.updateAddress(address.copy(lastUsedTimestamp = System.currentTimeMillis()))
 
-        val order = OrderEntity(
-            userId = CURRENT_USER_ID,
-            totalPrice = totalPrice,
-            snapshotAddress = "${address.tag}: ${address.fullAddress}"
-        )
-        val orderId = orderDao.insertOrder(order).toInt()
-
         val cartItems = cartDao.getCartItems(CURRENT_USER_ID).first()
-        val orderItems = cartItems.map { item ->
-            OrderItemEntity(
-                orderId = orderId,
-                coffeeName = item.coffee.name,
-                quantity = item.cartItem.quantity,
-                size = item.cartItem.size,
-                snapshotPrice = item.coffee.price
-            )
-        }
-        orderDao.insertOrderItems(orderItems)
+        if (cartItems.isEmpty()) return
 
         try {
-            val remoteOrder = supabase.from("orders").insert(
-                RemoteOrder(
-                    userId = CURRENT_USER_ID,
-                    totalPrice = totalPrice,
-                    status = "Preparing",
-                    snapshotAddress = order.snapshotAddress
-                )
-            ).decodeSingle<RemoteOrder>()
-            
-            val remoteId = remoteOrder.id
-            if (remoteId != null) {
-                val remoteOrderItems = orderItems.map {
-                    RemoteOrderItem(
-                        orderId = remoteId,
-                        coffeeName = it.coffeeName,
-                        quantity = it.quantity,
-                        size = it.size,
-                        snapshotPrice = it.snapshotPrice
-                    )
-                }
-                supabase.from("order_items").insert(remoteOrderItems)
+            // 1. Prepare Params for Backend RPC
+            val itemParams = cartItems.map { 
+                OrderItemParams(it.cartItem.coffeeId, it.cartItem.quantity, it.cartItem.size)
             }
-            
-            // Clear cloud cart
-            supabase.from("cart").delete { filter { eq("user_id", CURRENT_USER_ID) } }
-        } catch (e: Exception) {
-            println("Place Order Cloud Error: ${e.message}")
-        }
+            val params = PlaceOrderParams(
+                userId = CURRENT_USER_ID,
+                addressTag = address.tag,
+                discountCode = discountCode,
+                items = itemParams
+            )
 
-        cartItems.forEach { cartDao.removeFromCart(it.cartItem) }
+            // 2. Call Supabase RPC (Authoritative Pricing)
+            val remoteOrder = supabase.postgrest.rpc("place_order", params).decodeSingle<RemoteOrder>()
+            
+            // 3. Save to Local DB using backend result
+            val orderEntity = OrderEntity(
+                userId = CURRENT_USER_ID,
+                totalPrice = remoteOrder.totalPrice,
+                status = OrderStatus.fromString(remoteOrder.status),
+                snapshotAddress = remoteOrder.snapshotAddress
+            )
+            val localOrderId = orderDao.insertOrder(orderEntity).toInt()
+
+            val orderItems = cartItems.map { item ->
+                OrderItemEntity(
+                    orderId = localOrderId,
+                    coffeeName = item.coffee.name,
+                    quantity = item.cartItem.quantity,
+                    size = item.cartItem.size,
+                    snapshotPrice = item.coffee.price // Note: Backend also has its own price truth
+                )
+            }
+            orderDao.insertOrderItems(orderItems)
+
+            // 4. Clear Local & Remote Cart
+            cartItems.forEach { cartDao.removeFromCart(it.cartItem) }
+            supabase.from("cart").delete { filter { eq("user_id", CURRENT_USER_ID) } }
+
+        } catch (e: Exception) {
+            println("Place Order Secure Error: ${e.message}")
+            e.printStackTrace()
+            // Fallback or rethrow UI error
+        }
     }
 
     // Search Operations

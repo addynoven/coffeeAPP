@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.testing1.R
 import com.example.testing1.data.local.address.AddressEntity
 import com.example.testing1.data.local.cart.CartEntity
 import com.example.testing1.screens.cartscreen.components.BottomOrderBar
@@ -122,7 +124,7 @@ fun CartScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Order",
+                        stringResource(R.string.order_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -170,7 +172,7 @@ fun CartScreen(
         ) {
             item {
                 Text(
-                    text = "Delivery Address",
+                    text = stringResource(R.string.delivery_address_title),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -180,7 +182,7 @@ fun CartScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 if (uiState.addresses.isEmpty()) {
-                    Text("No addresses found. Add one in Profile.", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    Text(stringResource(R.string.no_addresses_error), color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                 } else {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(uiState.addresses) { address ->
@@ -196,7 +198,7 @@ fun CartScreen(
 
             item {
                 Text(
-                    text = "Selected: ${uiState.selectedAddress?.fullAddress ?: "None"}",
+                    text = stringResource(R.string.selected_label, uiState.selectedAddress?.fullAddress ?: "None"),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -215,14 +217,14 @@ fun CartScreen(
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Payment Summary",
+                    text = stringResource(R.string.payment_summary_title),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                PaymentRow("Price", "$ ${"%.2f".format(uiState.totalPrice)}")
-                PaymentRow("Delivery Fee", "$ ${"%.2f".format(uiState.deliveryFee)}")
+                PaymentRow(stringResource(R.string.price_label), "$ ${"%.2f".format(uiState.totalPrice)}")
+                PaymentRow(stringResource(R.string.delivery_fee_label), "$ ${"%.2f".format(uiState.deliveryFee)}")
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
@@ -286,10 +288,10 @@ fun OrderSuccessDialog(onDismiss: () -> Unit) {
                 }
             }
         },
-        title = { Text("Order Placed!") },
-        text = { Text("Your coffee is being prepared and will be delivered shortly.") },
+        title = { Text(stringResource(R.string.order_placed_title)) },
+        text = { Text(stringResource(R.string.order_placed_desc)) },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Awesome") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.awesome_button)) }
         }
     )
 }

@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">تطبيق القهوة</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">قع في حب القهوة في بهجة وسعادة!</string>
+    <string name="welcome_desc">مرحبًا بكم في ركن القهوة المريح الخاص بنا، حيث كل رشفة هي متعة لك.</string>
+    <string name="welcome_button">ابدأ الآن</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_favorite">المفضلة</string>
+    <string name="nav_cart">السلة</string>
+    <string name="nav_profile">الملف الشخصي</string>
+
+    <!-- Home Screen -->
+    <string name="location_label">الموقع</string>
+    <string name="default_location">شهيد ناجار، بوبال</string>
+    <string name="search_placeholder">البحث عن قهوة</string>
+    <string name="recent_searches_title">عمليات البحث الأخيرة</string>
+    <string name="search_results_count">%1$d نتيجة</string>
+    <string name="change_location_desc">تغيير الموقع</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">التفاصيل</string>
+    <string name="ice_hot_label">مثلج / ساخن</string>
+    <string name="description_title">الوصف</string>
+    <string name="description_footer">مشروب قهوة كلاسيكي مثالي لأي وقت من اليوم، مصنوع من أجود الحبوب لتجربة غنية ومرضية.</string>
+    <string name="size_title">الحجم</string>
+    <string name="add_to_cart_button">أضف إلى السلة</string>
+    <string name="price_label">السعر</string>
+
+    <!-- Cart Screen -->
+    <string name="order_title">الطلب</string>
+    <string name="delivery_address_title">عنوان التوصيل</string>
+    <string name="no_addresses_error">لم يتم العثور على عناوين. أضف واحدًا في الملف الشخصي.</string>
+    <string name="selected_label">تم اختيار: %1$s</string>
+    <string name="payment_summary_title">ملخص الدفع</string>
+    <string name="delivery_fee_label">رسوم التوصيل</string>
+    <string name="online_payment_label">أونلاين</string>
+    <string name="place_order_button">إتمام الطلب</string>
+    <string name="order_placed_title">تم تقديم الطلب!</string>
+    <string name="order_placed_desc">يتم تحضير قهوتك وسيتم توصيلها قريبًا.</string>
+    <string name="awesome_button">رائع</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">الملف الشخصي</string>
+    <string name="edit_profile_desc">تعديل الملف الشخصي</string>
+    <string name="save_label">حفظ</string>
+    <string name="cancel_label">إلغاء</string>
+    <string name="name_label">الاسم</string>
+    <string name="email_label">البريد الإلكتروني</string>
+    <string name="unknown_user">غير معروف</string>
+    <string name="no_email">لا يوجد بريد إلكتروني</string>
+    <string name="my_addresses_title">عناويني</string>
+    <string name="add_new_address_button">إضافة جديد</string>
+    <string name="no_addresses_message">لا توجد عناوين محفوظة بعد.</string>
+    <string name="order_history_menu">سجل الطلبات</string>
+    <string name="my_favorites_menu">المفضلة</string>
+    <string name="settings_menu">الإعدادات</string>
+    <string name="add_address_title">إضافة عنوان جديد</string>
+    <string name="tag_label">العلامة (منزل، عمل، إلخ)</string>
+    <string name="full_address_label">العنوان بالكامل</string>
+    <string name="default_label">افتراضي</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="theme_preference_title">تفضيلات المظهر</string>
+    <string name="follow_system_label">حسب النظام</string>
+    <string name="light_mode_label">الوضع الفاتح</string>
+    <string name="dark_mode_label">الوضع الداكن</string>
+
+    <!-- Order History Screen -->
+    <string name="order_history_title">سجل الطلبات</string>
+    <string name="no_orders_message">لا توجد طلبات بعد.</string>
+    <string name="order_id_label">طلب رقم %1$d</string>
+    <string name="delivered_to_label">تم التوصيل إلى:</string>
+    <string name="total_price_label">السعر الإجمالي</string>
+
+    <!-- Categories -->
+    <string name="all_coffee_label">الكل</string>
+    <string name="category_macchiato">ماكياتو</string>
+    <string name="category_latte">لاتيه</string>
+    <string name="category_cappuccino">كابوتشينو</string>
+    <string name="category_espresso">إسبريسو</string>
+    <string name="category_flat_white">فلات وايت</string>
+
+    <!-- Other -->
+    <string name="add_to_cart_desc">أضف إلى السلة</string>
+    <string name="size_prefix">الحجم: %1$s</string>
+    <string name="delete_item_desc">حذف العنصر</string>
+    <string name="status_preparing">قيد التحضير</string>
+</resources>

@@ -31,11 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.testing1.R
 import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.data.local.search.SearchHistoryEntity
 import com.example.testing1.screens.homescreen.components.Banner
@@ -196,7 +198,7 @@ fun RecentSearchesSection(
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
-                text = "Recent Searches",
+                text = stringResource(R.string.recent_searches_title),
                 color = Color.Gray,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
@@ -222,7 +224,7 @@ fun RecentSearchesSection(
                         Text(text = search.query, color = Color.White, fontSize = 14.sp)
                     }
                     Text(
-                        text = "${search.resultCount} results",
+                        text = stringResource(R.string.search_results_count, search.resultCount),
                         color = Color.Gray,
                         fontSize = 11.sp
                     )

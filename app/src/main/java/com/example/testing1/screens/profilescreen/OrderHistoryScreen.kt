@@ -30,14 +30,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.testing1.R
 import com.example.testing1.data.local.order.OrderWithItems
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun OrderHistoryRoute(
@@ -57,10 +58,19 @@ fun OrderHistoryScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Order History", fontSize = 18.sp, fontWeight = FontWeight.SemiBold) },
+                title = {
+                    Text(
+                        stringResource(R.string.order_history_title),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Back"
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -73,15 +83,23 @@ fun OrderHistoryScreen(
     ) { innerPadding ->
         if (uiState.orders.isEmpty()) {
             Column(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("No orders placed yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(R.string.no_orders_message),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -96,8 +114,10 @@ fun OrderHistoryScreen(
 
 @Composable
 fun OrderCard(orderWithItems: OrderWithItems) {
-    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
-    val dateFormat = remember(locale) { SimpleDateFormat("dd MMM yyyy, HH:mm", locale) }
+    val locale =
+        androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val dateFormat =
+        remember(locale) { SimpleDateFormat("dd MMM yyyy, HH:mm", locale) }
     val dateString = dateFormat.format(Date(orderWithItems.order.timestamp))
 
     Card(
@@ -112,13 +132,16 @@ fun OrderCard(orderWithItems: OrderWithItems) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Order #${orderWithItems.order.orderId}",
+                    text = stringResource(
+                        R.string.order_id_label,
+                        orderWithItems.order.orderId
+                    ),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = orderWithItems.order.status,
+                    text = if (orderWithItems.order.status == "Preparing") stringResource(R.string.status_preparing) else orderWithItems.order.status,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.primary
@@ -129,14 +152,16 @@ fun OrderCard(orderWithItems: OrderWithItems) {
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Spacer(modifier = Modifier.height(12.dp))
 
             orderWithItems.items.forEach { item ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
@@ -158,7 +183,7 @@ fun OrderCard(orderWithItems: OrderWithItems) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Delivered to:",
+                text = stringResource(R.string.delivered_to_label),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -177,7 +202,7 @@ fun OrderCard(orderWithItems: OrderWithItems) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Total Price",
+                    text = stringResource(R.string.total_price_label),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSurface

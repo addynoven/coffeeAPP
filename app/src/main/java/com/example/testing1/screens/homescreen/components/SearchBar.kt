@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.example.testing1.R
@@ -40,7 +41,7 @@ fun SearchBar(
             value = searchText,
             textStyle = TextStyle(color = Color.White),
             onValueChange = onSearchTextChange,
-            placeholder = { Text(text = "Search Coffee", color = Color.Gray) },
+            placeholder = { Text(text = stringResource(R.string.search_placeholder), color = Color.Gray) },
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.regular_outline_search),

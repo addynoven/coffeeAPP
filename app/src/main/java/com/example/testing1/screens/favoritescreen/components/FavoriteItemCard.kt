@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +38,8 @@ import com.example.testing1.util.shimmerLoading
 @Composable
 fun FavoriteItemCard(item: CoffeeEntity, onRemoveClick: () -> Unit) {
     val cloudinaryHelper = LocalCloudinaryHelper.current
+    val language = LocalConfiguration.current.locales[0].language
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -78,13 +82,13 @@ fun FavoriteItemCard(item: CoffeeEntity, onRemoveClick: () -> Unit) {
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = item.name,
+                text = item.getLocalizedName(language),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = item.description,
+                text = item.getLocalizedDescription(language),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -92,7 +96,7 @@ fun FavoriteItemCard(item: CoffeeEntity, onRemoveClick: () -> Unit) {
         IconButton(onClick = onRemoveClick) {
             Icon(
                 imageVector = Icons.Default.Delete,
-                contentDescription = "Delete",
+                contentDescription = stringResource(R.string.delete_item_desc),
                 tint = Color.Red.copy(alpha = 0.6f),
                 modifier = Modifier.size(20.dp)
             )

@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">コーヒーアプリ</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">至福の喜び、コーヒーに恋をしよう！</string>
+    <string name="welcome_desc">居心地の良いコーヒーコーナーへようこそ。一口ごとに至福のひとときをお届けします。</string>
+    <string name="welcome_button">はじめる</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">ホーム</string>
+    <string name="nav_favorite">お気に入り</string>
+    <string name="nav_cart">カート</string>
+    <string name="nav_profile">プロフィール</string>
+
+    <!-- Home Screen -->
+    <string name="location_label">場所</string>
+    <string name="default_location">ボパール、シャヒード・ナガル</string>
+    <string name="search_placeholder">コーヒーを検索</string>
+    <string name="recent_searches_title">最近の検索</string>
+    <string name="search_results_count">%1$d件の結果</string>
+    <string name="change_location_desc">場所を変更</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">詳細</string>
+    <string name="ice_hot_label">アイス / ホット</string>
+    <string name="description_title">説明</string>
+    <string name="description_footer">一日中いつでも楽しめる、最高級の豆で丁寧に作られたリッチで満足感のあるクラシックなコーヒーです。</string>
+    <string name="size_title">サイズ</string>
+    <string name="add_to_cart_button">カートに追加</string>
+    <string name="price_label">価格</string>
+
+    <!-- Cart Screen -->
+    <string name="order_title">注文</string>
+    <string name="delivery_address_title">お届け先</string>
+    <string name="no_addresses_error">住所が見つかりません。プロフィールから追加してください。</string>
+    <string name="selected_label">選択中: %1$s</string>
+    <string name="payment_summary_title">支払い概要</string>
+    <string name="delivery_fee_label">配送料</string>
+    <string name="online_payment_label">オンライン決済</string>
+    <string name="place_order_button">注文を確定する</string>
+    <string name="order_placed_title">注文完了！</string>
+    <string name="order_placed_desc">コーヒーを準備中です。まもなくお届けします。</string>
+    <string name="awesome_button">了解</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">プロフィール</string>
+    <string name="edit_profile_desc">プロフィールを編集</string>
+    <string name="save_label">保存</string>
+    <string name="cancel_label">キャンセル</string>
+    <string name="name_label">お名前</string>
+    <string name="email_label">メールアドレス</string>
+    <string name="unknown_user">不明なユーザー</string>
+    <string name="no_email">メールアドレスなし</string>
+    <string name="my_addresses_title">マイ住所</string>
+    <string name="add_new_address_button">新規追加</string>
+    <string name="no_addresses_message">保存された住所はありません。</string>
+    <string name="order_history_menu">注文履歴</string>
+    <string name="my_favorites_menu">お気に入り</string>
+    <string name="settings_menu">設定</string>
+    <string name="add_address_title">新しい住所を追加</string>
+    <string name="tag_label">タグ（自宅、職場など）</string>
+    <string name="full_address_label">詳しい住所</string>
+    <string name="default_label">デフォルト</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">設定</string>
+    <string name="theme_preference_title">テーマ設定</string>
+    <string name="follow_system_label">システム設定に従う</string>
+    <string name="light_mode_label">ライトモード</string>
+    <string name="dark_mode_label">ダークモード</string>
+
+    <!-- Order History Screen -->
+    <string name="order_history_title">注文履歴</string>
+    <string name="no_orders_message">まだ注文はありません。</string>
+    <string name="order_id_label">注文番号 #%1$d</string>
+    <string name="delivered_to_label">お届け先:</string>
+    <string name="total_price_label">合計金額</string>
+    <string name="add_to_cart_desc">カートに追加</string>
+    <string name="size_prefix">サイズ: %1$s</string>
+    <string name="delete_item_desc">アイテムを削除</string>
+    <string name="all_coffee_label">すべて</string>
+    <string name="category_macchiato">マキアート</string>
+    <string name="category_latte">ラテ</string>
+    <string name="category_cappuccino">カプチーノ</string>
+    <string name="category_espresso">エスプレッソ</string>
+    <string name="category_flat_white">フラットホワイト</string>
+    <string name="status_preparing">準備中</string>
+</resources>

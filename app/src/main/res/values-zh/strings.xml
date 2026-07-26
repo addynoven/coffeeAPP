@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">咖啡应用</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">在幸福的愉悦中爱上咖啡！</string>
+    <string name="welcome_desc">欢迎来到我们温馨的咖啡角落，每一口都是您的享受。</string>
+    <string name="welcome_button">开始使用</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">首页</string>
+    <string name="nav_favorite">收藏</string>
+    <string name="nav_cart">购物车</string>
+    <string name="nav_profile">个人资料</string>
+
+    <!-- Home Screen -->
+    <string name="location_label">位置</string>
+    <string name="default_location">博帕尔，沙希德纳加尔</string>
+    <string name="search_placeholder">搜索咖啡</string>
+    <string name="recent_searches_title">最近搜索</string>
+    <string name="search_results_count">%1$d 个结果</string>
+    <string name="change_location_desc">更改位置</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">详情</string>
+    <string name="ice_hot_label">冰 / 热</string>
+    <string name="description_title">描述</string>
+    <string name="description_footer">一款经典的咖啡饮品，适合一天中任何时间享用，选用最优质的咖啡豆精心调制，带来浓郁而满足的体验。</string>
+    <string name="size_title">尺寸</string>
+    <string name="add_to_cart_button">加入购物车</string>
+    <string name="price_label">价格</string>
+
+    <!-- Cart Screen -->
+    <string name="order_title">订单</string>
+    <string name="delivery_address_title">收货地址</string>
+    <string name="no_addresses_error">未找到地址。请在个人资料中添加。</string>
+    <string name="selected_label">已选择：%1$s</string>
+    <string name="payment_summary_title">付款摘要</string>
+    <string name="delivery_fee_label">配送费</string>
+    <string name="online_payment_label">在线支付</string>
+    <string name="place_order_button">下订单</string>
+    <string name="order_placed_title">订单已提交！</string>
+    <string name="order_placed_desc">您的咖啡正在准备中，很快就会送达。</string>
+    <string name="awesome_button">太棒了</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">个人资料</string>
+    <string name="edit_profile_desc">编辑个人资料</string>
+    <string name="save_label">保存</string>
+    <string name="cancel_label">取消</string>
+    <string name="name_label">姓名</string>
+    <string name="email_label">电子邮箱</string>
+    <string name="unknown_user">未知用户</string>
+    <string name="no_email">无电子邮箱</string>
+    <string name="my_addresses_title">我的地址</string>
+    <string name="add_new_address_button">添加新地址</string>
+    <string name="no_addresses_message">尚未保存地址。</string>
+    <string name="order_history_menu">订单历史</string>
+    <string name="my_favorites_menu">我的收藏</string>
+    <string name="settings_menu">设置</string>
+    <string name="add_address_title">添加新地址</string>
+    <string name="tag_label">标签（家庭、工作等）</string>
+    <string name="full_address_label">详细地址</string>
+    <string name="default_label">默认</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">设置</string>
+    <string name="theme_preference_title">主题偏好</string>
+    <string name="follow_system_label">跟随系统</string>
+    <string name="light_mode_label">浅色模式</string>
+    <string name="dark_mode_label">深色模式</string>
+
+    <!-- Order History Screen -->
+    <string name="order_history_title">订单历史</string>
+    <string name="no_orders_message">尚未下订单。</string>
+    <string name="order_id_label">订单 #%1$d</string>
+    <string name="delivered_to_label">派送至：</string>
+    <string name="total_price_label">总价</string>
+
+    <!-- Categories -->
+    <string name="all_coffee_label">全部</string>
+    <string name="category_macchiato">玛奇朵</string>
+    <string name="category_latte">拿铁</string>
+    <string name="category_cappuccino">卡布奇诺</string>
+    <string name="category_espresso">浓缩咖啡</string>
+    <string name="category_flat_white">澳白</string>
+
+    <!-- Other -->
+    <string name="add_to_cart_desc">加入购物车</string>
+    <string name="size_prefix">尺寸：%1$s</string>
+    <string name="delete_item_desc">删除项目</string>
+    <string name="status_preparing">准备中</string>
+</resources>

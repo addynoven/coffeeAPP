@@ -178,7 +178,25 @@ class CoffeeRepository @Inject constructor(
         category = category,
         price = price,
         imageUrl = imageUrl,
-        isFavorite = isFavorite
+        isFavorite = isFavorite,
+        nameJa = nameJa,
+        descriptionJa = descriptionJa,
+        nameDe = nameDe,
+        descriptionDe = descriptionDe,
+        nameRu = nameRu,
+        descriptionRu = descriptionRu,
+        namePt = namePt,
+        descriptionPt = descriptionPt,
+        nameFr = nameFr,
+        descriptionFr = descriptionFr,
+        nameAr = nameAr,
+        descriptionAr = descriptionAr,
+        nameEs = nameEs,
+        descriptionEs = descriptionEs,
+        nameZh = nameZh,
+        descriptionZh = descriptionZh,
+        nameIt = nameIt,
+        descriptionIt = descriptionIt
     )
 
     // Cart Operations

@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.testing1.R
 
@@ -21,14 +22,12 @@ data class NavItem(
 
 @Composable
 fun MyBottomBar(selectedTab: String = "Home", onTabSelected: (String) -> Unit = {}) {
-    val navItems = remember {
-        listOf(
-            NavItem("Home", R.drawable.regular_outline_home),
-            NavItem("Favorite", R.drawable.regular_outline_heart),
-            NavItem("Cart", R.drawable.regular_outline_bag),
-            NavItem("Profile", R.drawable.outline_account_circle_24)
-        )
-    }
+    val navItems = listOf(
+        NavItem(stringResource(R.string.nav_home), R.drawable.regular_outline_home),
+        NavItem(stringResource(R.string.nav_favorite), R.drawable.regular_outline_heart),
+        NavItem(stringResource(R.string.nav_cart), R.drawable.regular_outline_bag),
+        NavItem(stringResource(R.string.nav_profile), R.drawable.outline_account_circle_24)
+    )
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,

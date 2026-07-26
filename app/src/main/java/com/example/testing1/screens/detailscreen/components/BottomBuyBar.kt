@@ -16,9 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.testing1.R
 import com.example.testing1.ui.theme.CoffeeBrown
 
 @Composable
@@ -37,7 +39,7 @@ fun BottomBuyBar(price: Double, onAddToCartClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(text = "Price", color = Color.Gray, fontSize = 14.sp)
+                Text(text = stringResource(R.string.price_label), color = Color.Gray, fontSize = 14.sp)
                 Text(
                     text = "$ $price",
                     color = CoffeeBrown,
@@ -54,7 +56,7 @@ fun BottomBuyBar(price: Double, onAddToCartClick: () -> Unit) {
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
-                    text = "Add To Cart",
+                    text = stringResource(R.string.add_to_cart_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )

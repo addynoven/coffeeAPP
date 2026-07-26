@@ -32,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -100,6 +102,7 @@ fun DetailScreen(
 ) {
     val item = uiState.coffeeItem ?: return
     val cloudinaryHelper = LocalCloudinaryHelper.current
+    val language = LocalConfiguration.current.locales[0].language
 
     Scaffold(
         topBar = {
@@ -119,7 +122,7 @@ fun DetailScreen(
                     )
                 }
                 Text(
-                    text = "Detail",
+                    text = stringResource(R.string.detail_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -184,7 +187,7 @@ fun DetailScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = item.name,
+                text = item.getLocalizedName(language),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
@@ -196,7 +199,7 @@ fun DetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Ice / Hot",
+                    text = stringResource(R.string.ice_hot_label),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -212,14 +215,14 @@ fun DetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Description",
+                text = stringResource(R.string.description_title),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "${item.description}. A classic coffee drink that's perfect for any time of day, crafted with the finest beans for a rich and satisfying experience.",
+                text = "${item.getLocalizedDescription(language)}. ${stringResource(R.string.description_footer)}",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 20.sp
@@ -228,7 +231,7 @@ fun DetailScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Size",
+                text = stringResource(R.string.size_title),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground

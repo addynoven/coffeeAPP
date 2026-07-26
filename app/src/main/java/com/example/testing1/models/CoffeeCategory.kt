@@ -1,21 +1,21 @@
 package com.example.testing1.models
 
+import com.example.testing1.R
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class CoffeeCategory(val displayName: String) {
+enum class CoffeeCategory(val displayNameRes: Int) {
     @SerialName("All Coffee")
-    AllCoffee("All Coffee"),
+    AllCoffee(R.string.all_coffee_label),
     @SerialName("Macchiato")
-    Macchiato("Macchiato"),
+    Macchiato(R.string.category_macchiato),
     @SerialName("Latte")
-    Latte("Latte"),
+    Latte(R.string.category_latte),
     @SerialName("Cappuccino")
-    Cappuccino("Cappuccino"),
+    Cappuccino(R.string.category_cappuccino),
     @SerialName("Espresso")
-    Espresso("Espresso"),
-    
+    Espresso(R.string.category_espresso),
     @SerialName("Flat White")
-    FlatWhite("Flat White")
+    FlatWhite(R.string.category_flat_white)
 }

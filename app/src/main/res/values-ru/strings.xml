@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Кофейное приложение</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">Влюбитесь в кофе в блаженном восторге!</string>
+    <string name="welcome_desc">Добро пожаловать в наш уютный кофейный уголок, где каждый глоток — это наслаждение для вас.</string>
+    <string name="welcome_button">Начать</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Главная</string>
+    <string name="nav_favorite">Избранное</string>
+    <string name="nav_cart">Корзина</string>
+    <string name="nav_profile">Профиль</string>
+
+    <!-- Home Screen -->
+    <string name="location_label">Местоположение</string>
+    <string name="default_location">Шахид Нагар, Бхопал</string>
+    <string name="search_placeholder">Поиск кофе</string>
+    <string name="recent_searches_title">Последние поиски</string>
+    <string name="search_results_count">Результатов: %1$d</string>
+    <string name="change_location_desc">Сменить местоположение</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">Детали</string>
+    <string name="ice_hot_label">Лед / Горячий</string>
+    <string name="description_title">Описание</string>
+    <string name="description_footer">Классический кофейный напиток, идеально подходящий для любого времени суток, приготовленный из лучших зерен для богатого и приятного вкуса.</string>
+    <string name="size_title">Размер</string>
+    <string name="add_to_cart_button">В корзину</string>
+    <string name="price_label">Цена</string>
+
+    <!-- Cart Screen -->
+    <string name="order_title">Заказ</string>
+    <string name="delivery_address_title">Адрес доставки</string>
+    <string name="no_addresses_error">Адреса не найдены. Добавьте один в профиле.</string>
+    <string name="selected_label">Выбрано: %1$s</string>
+    <string name="payment_summary_title">Сводка оплаты</string>
+    <string name="delivery_fee_label">Стоимость доставки</string>
+    <string name="online_payment_label">Онлайн</string>
+    <string name="place_order_button">Оформить заказ</string>
+    <string name="order_placed_title">Заказ оформлен!</string>
+    <string name="order_placed_desc">Ваш кофе готовится и будет доставлен в ближайшее время.</string>
+    <string name="awesome_button">Отлично</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Профиль</string>
+    <string name="edit_profile_desc">Редактировать профиль</string>
+    <string name="save_label">Сохранить</string>
+    <string name="cancel_label">Отмена</string>
+    <string name="name_label">Имя</string>
+    <string name="email_label">Email</string>
+    <string name="unknown_user">Неизвестно</string>
+    <string name="no_email">Нет Email</string>
+    <string name="my_addresses_title">Мои адреса</string>
+    <string name="add_new_address_button">Добавить новый</string>
+    <string name="no_addresses_message">Адреса еще не сохранены.</string>
+    <string name="order_history_menu">История заказов</string>
+    <string name="my_favorites_menu">Избранное</string>
+    <string name="settings_menu">Настройки</string>
+    <string name="add_address_title">Добавить новый адрес</string>
+    <string name="tag_label">Метка (Дом, Работа и т.д.)</string>
+    <string name="full_address_label">Полный адрес</string>
+    <string name="default_label">По умолчанию</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Настройки</string>
+    <string name="theme_preference_title">Тема</string>
+    <string name="follow_system_label">Как в системе</string>
+    <string name="light_mode_label">Светлая</string>
+    <string name="dark_mode_label">Темная</string>
+
+    <!-- Order History Screen -->
+    <string name="order_history_title">История заказов</string>
+    <string name="no_orders_message">Заказов пока нет.</string>
+    <string name="order_id_label">Заказ #%1$d</string>
+    <string name="delivered_to_label">Доставлено в:</string>
+    <string name="total_price_label">Итоговая цена</string>
+
+    <!-- Categories -->
+    <string name="all_coffee_label">Все</string>
+    <string name="category_macchiato">Макиато</string>
+    <string name="category_latte">Латте</string>
+    <string name="category_cappuccino">Капучино</string>
+    <string name="category_espresso">Эспрессо</string>
+    <string name="category_flat_white">Флэт Уайт</string>
+
+    <!-- Other -->
+    <string name="add_to_cart_desc">Добавить в корзину</string>
+    <string name="size_prefix">Размер: %1$s</string>
+    <string name="delete_item_desc">Удалить элемент</string>
+    <string name="status_preparing">Готовится</string>
+</resources>

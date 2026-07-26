@@ -26,10 +26,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.testing1.R
 import com.example.testing1.data.settings.ThemeConfig
 
 @Composable
@@ -55,7 +57,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Settings", fontSize = 18.sp, fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.settings_title), fontSize = 18.sp, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
@@ -78,7 +80,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "Theme Preference",
+                text = stringResource(R.string.theme_preference_title),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
@@ -87,17 +89,17 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             ThemeOption(
-                title = "Follow System",
+                title = stringResource(R.string.follow_system_label),
                 selected = uiState.themeConfig == ThemeConfig.FOLLOW_SYSTEM,
                 onClick = { onThemeChange(ThemeConfig.FOLLOW_SYSTEM) }
             )
             ThemeOption(
-                title = "Light Mode",
+                title = stringResource(R.string.light_mode_label),
                 selected = uiState.themeConfig == ThemeConfig.LIGHT,
                 onClick = { onThemeChange(ThemeConfig.LIGHT) }
             )
             ThemeOption(
-                title = "Dark Mode",
+                title = stringResource(R.string.dark_mode_label),
                 selected = uiState.themeConfig == ThemeConfig.DARK,
                 onClick = { onThemeChange(ThemeConfig.DARK) }
             )

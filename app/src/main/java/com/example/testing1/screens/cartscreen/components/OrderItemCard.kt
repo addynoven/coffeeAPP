@@ -28,7 +28,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +47,8 @@ fun OrderItemCard(
     onDecreaseQuantity: () -> Unit
 ) {
     val cloudinaryHelper = LocalCloudinaryHelper.current
+    val language = LocalConfiguration.current.locales[0].language
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,13 +91,13 @@ fun OrderItemCard(
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = item.coffee.name,
+                text = item.coffee.getLocalizedName(language),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Size: ${item.cartItem.size}",
+                text = stringResource(R.string.size_prefix, item.cartItem.size),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

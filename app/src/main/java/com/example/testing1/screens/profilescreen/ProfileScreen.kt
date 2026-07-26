@@ -47,11 +47,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.testing1.R
 import com.example.testing1.data.local.address.AddressEntity
 import com.example.testing1.data.local.user.UserEntity
 import com.example.testing1.screens.ui_components.MyBottomBar
@@ -154,22 +156,22 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Profile",
+                    text = stringResource(R.string.profile_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 if (!uiState.isEditMode) {
                     IconButton(onClick = onEditClick) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit Profile")
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_profile_desc))
                     }
                 } else {
                     Row {
                         IconButton(onClick = onCancelClick) {
-                            Icon(Icons.Default.Cancel, contentDescription = "Cancel", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Default.Cancel, contentDescription = stringResource(R.string.cancel_label), tint = MaterialTheme.colorScheme.error)
                         }
                         IconButton(onClick = onSaveClick) {
-                            Icon(Icons.Default.Check, contentDescription = "Save", tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save_label), tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -202,7 +204,7 @@ fun ProfileScreen(
                     OutlinedTextField(
                         value = uiState.editName,
                         onValueChange = onNameChange,
-                        label = { Text("Name") },
+                        label = { Text(stringResource(R.string.name_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -210,19 +212,19 @@ fun ProfileScreen(
                     OutlinedTextField(
                         value = uiState.editEmail,
                         onValueChange = onEmailChange,
-                        label = { Text("Email") },
+                        label = { Text(stringResource(R.string.email_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
                 } else {
                     Text(
-                        text = uiState.user?.name ?: "Unknown",
+                        text = uiState.user?.name ?: stringResource(R.string.unknown_user),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = uiState.user?.email ?: "No Email",
+                        text = uiState.user?.email ?: stringResource(R.string.no_email),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -238,7 +240,7 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "My Addresses",
+                    text = stringResource(R.string.my_addresses_title),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -246,7 +248,7 @@ fun ProfileScreen(
                 TextButton(onClick = onAddAddressClick) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add New")
+                    Text(stringResource(R.string.add_new_address_button))
                 }
             }
             
@@ -254,7 +256,7 @@ fun ProfileScreen(
             
             if (uiState.addresses.isEmpty()) {
                 Text(
-                    text = "No addresses saved yet.",
+                    text = stringResource(R.string.no_addresses_message),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -286,19 +288,19 @@ fun ProfileScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         ProfileMenuItem(
                             icon = Icons.Default.ShoppingCart,
-                            title = "Order History",
+                            title = stringResource(R.string.order_history_menu),
                             onClick = onOrdersClick
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         ProfileMenuItem(
                             icon = Icons.Default.Favorite,
-                            title = "My Favorites",
+                            title = stringResource(R.string.my_favorites_menu),
                             onClick = onFavoriteClick
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         ProfileMenuItem(
                             icon = Icons.Default.Settings,
-                            title = "Settings",
+                            title = stringResource(R.string.settings_menu),
                             onClick = onSettingsClick
                         )
                     }
@@ -365,7 +367,7 @@ fun AddressCard(
             if (address.isDefault) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Default",
+                    text = stringResource(R.string.default_label),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -386,28 +388,28 @@ fun AddAddressDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Address") },
+        title = { Text(stringResource(R.string.add_address_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = tag,
                     onValueChange = onTagChange,
-                    label = { Text("Tag (Home, Work, etc.)") },
+                    label = { Text(stringResource(R.string.tag_label)) },
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = address,
                     onValueChange = onAddressChange,
-                    label = { Text("Full Address") },
+                    label = { Text(stringResource(R.string.full_address_label)) },
                     minLines = 2
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("Save") }
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.save_label)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel_label)) }
         }
     )
 }

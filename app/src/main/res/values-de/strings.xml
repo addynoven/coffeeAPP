@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Kaffee-App</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">Verlieben Sie sich in Kaffee in glückseligem Genuss!</string>
+    <string name="welcome_desc">Willkommen in unserer gemütlichen Kaffee-Ecke, wo jeder Schluck ein Genuss für Sie ist.</string>
+    <string name="welcome_button">Loslegen</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favorite">Favorit</string>
+    <string name="nav_cart">Warenkorb</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- Home Screen -->
+    <string name="location_label">Standort</string>
+    <string name="default_location">Shaheed Nagar, Bhopal</string>
+    <string name="search_placeholder">Kaffee suchen</string>
+    <string name="recent_searches_title">Letzte Suchen</string>
+    <string name="search_results_count">%1$d Ergebnisse</string>
+    <string name="change_location_desc">Standort ändern</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">Details</string>
+    <string name="ice_hot_label">Eis / Heiß</string>
+    <string name="description_title">Beschreibung</string>
+    <string name="description_footer">Ein klassisches Kaffeegetränk, das perfekt für jede Tageszeit ist, hergestellt aus feinsten Bohnen für ein reiches und zufriedenstellendes Erlebnis.</string>
+    <string name="size_title">Größe</string>
+    <string name="add_to_cart_button">In den Warenkorb</string>
+    <string name="price_label">Preis</string>
+
+    <!-- Cart Screen -->
+    <string name="order_title">Bestellung</string>
+    <string name="delivery_address_title">Lieferadresse</string>
+    <string name="no_addresses_error">Keine Adressen gefunden. Fügen Sie eine im Profil hinzu.</string>
+    <string name="selected_label">Ausgewählt: %1$s</string>
+    <string name="payment_summary_title">Zahlungsübersicht</string>
+    <string name="delivery_fee_label">Liefergebühr</string>
+    <string name="online_payment_label">Online</string>
+    <string name="place_order_button">Bestellung aufgeben</string>
+    <string name="order_placed_title">Bestellung aufgegeben!</string>
+    <string name="order_placed_desc">Ihr Kaffee wird zubereitet und in Kürze geliefert.</string>
+    <string name="awesome_button">Prima</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profil</string>
+    <string name="edit_profile_desc">Profil bearbeiten</string>
+    <string name="save_label">Speichern</string>
+    <string name="cancel_label">Abbrechen</string>
+    <string name="name_label">Name</string>
+    <string name="email_label">E-Mail</string>
+    <string name="unknown_user">Unbekannt</string>
+    <string name="no_email">Keine E-Mail</string>
+    <string name="my_addresses_title">Meine Adressen</string>
+    <string name="add_new_address_button">Neu hinzufügen</string>
+    <string name="no_addresses_message">Noch keine Adressen gespeichert.</string>
+    <string name="order_history_menu">Bestellverlauf</string>
+    <string name="my_favorites_menu">Meine Favoriten</string>
+    <string name="settings_menu">Einstellungen</string>
+    <string name="add_address_title">Neue Adresse hinzufügen</string>
+    <string name="tag_label">Tag (Privat, Arbeit, etc.)</string>
+    <string name="full_address_label">Vollständige Adresse</string>
+    <string name="default_label">Standard</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="theme_preference_title">Design-Einstellung</string>
+    <string name="follow_system_label">System folgen</string>
+    <string name="light_mode_label">Heller Modus</string>
+    <string name="dark_mode_label">Dunkler Modus</string>
+
+    <!-- Order History Screen -->
+    <string name="order_history_title">Bestellverlauf</string>
+    <string name="no_orders_message">Noch keine Bestellungen aufgegeben.</string>
+    <string name="order_id_label">Bestellung #%1$d</string>
+    <string name="delivered_to_label">Geliefert an:</string>
+    <string name="total_price_label">Gesamtpreis</string>
+
+    <!-- Categories -->
+    <string name="all_coffee_label">Alle</string>
+    <string name="category_macchiato">Macchiato</string>
+    <string name="category_latte">Latte</string>
+    <string name="category_cappuccino">Cappuccino</string>
+    <string name="category_espresso">Espresso</string>
+    <string name="category_flat_white">Flat White</string>
+
+    <!-- Other -->
+    <string name="add_to_cart_desc">In den Warenkorb legen</string>
+    <string name="size_prefix">Größe: %1$s</string>
+    <string name="delete_item_desc">Element löschen</string>
+    <string name="status_preparing">In Zubereitung</string>
+</resources>

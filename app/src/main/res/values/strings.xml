@@ -1,3 +1,88 @@
 <resources>
-    <string name="app_name">testing1</string>
+    <string name="app_name">Coffee App</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">FALL in Love with Coffee in Blissful Delight!</string>
+    <string name="welcome_desc">Welcome to our cozy coffee corner, where every sip is a delight for you.</string>
+    <string name="welcome_button">Get Started</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favorite">Favorite</string>
+    <string name="nav_cart">Cart</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Home Screen -->
+    <string name="location_label">Location</string>
+    <string name="default_location">Shaheed Nagar, Bhopal</string>
+    <string name="search_placeholder">Search Coffee</string>
+    <string name="recent_searches_title">Recent Searches</string>
+    <string name="search_results_count">%1$d results</string>
+    <string name="change_location_desc">Change Location</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">Detail</string>
+    <string name="ice_hot_label">Ice / Hot</string>
+    <string name="description_title">Description</string>
+    <string name="description_footer">A classic coffee drink that\'s perfect for any time of day, crafted with the finest beans for a rich and satisfying experience.</string>
+    <string name="size_title">Size</string>
+    <string name="add_to_cart_button">Add To Cart</string>
+    <string name="price_label">Price</string>
+
+    <!-- Cart Screen -->
+    <string name="order_title">Order</string>
+    <string name="delivery_address_title">Delivery Address</string>
+    <string name="no_addresses_error">No addresses found. Add one in Profile.</string>
+    <string name="selected_label">Selected: %1$s</string>
+    <string name="payment_summary_title">Payment Summary</string>
+    <string name="delivery_fee_label">Delivery Fee</string>
+    <string name="online_payment_label">Online</string>
+    <string name="place_order_button">Place Order</string>
+    <string name="order_placed_title">Order Placed!</string>
+    <string name="order_placed_desc">Your coffee is being prepared and will be delivered shortly.</string>
+    <string name="awesome_button">Awesome</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="edit_profile_desc">Edit Profile</string>
+    <string name="save_label">Save</string>
+    <string name="cancel_label">Cancel</string>
+    <string name="name_label">Name</string>
+    <string name="email_label">Email</string>
+    <string name="unknown_user">Unknown</string>
+    <string name="no_email">No Email</string>
+    <string name="my_addresses_title">My Addresses</string>
+    <string name="add_new_address_button">Add New</string>
+    <string name="no_addresses_message">No addresses saved yet.</string>
+    <string name="order_history_menu">Order History</string>
+    <string name="my_favorites_menu">My Favorites</string>
+    <string name="settings_menu">Settings</string>
+    <string name="add_address_title">Add New Address</string>
+    <string name="tag_label">Tag (Home, Work, etc.)</string>
+    <string name="full_address_label">Full Address</string>
+    <string name="default_label">Default</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="theme_preference_title">Theme Preference</string>
+    <string name="follow_system_label">Follow System</string>
+    <string name="light_mode_label">Light Mode</string>
+    <string name="dark_mode_label">Dark Mode</string>
+
+    <!-- Order History Screen -->
+    <string name="order_history_title">Order History</string>
+    <string name="no_orders_message">No orders placed yet.</string>
+    <string name="order_id_label">Order #%1$d</string>
+    <string name="delivered_to_label">Delivered to:</string>
+    <string name="total_price_label">Total Price</string>
+    <string name="add_to_cart_desc">Add to Cart</string>
+    <string name="size_prefix">Size: %1$s</string>
+    <string name="delete_item_desc">Delete Item</string>
+    <string name="all_coffee_label">All Coffee</string>
+    <string name="category_macchiato">Macchiato</string>
+    <string name="category_latte">Latte</string>
+    <string name="category_cappuccino">Cappuccino</string>
+    <string name="category_espresso">Espresso</string>
+    <string name="category_flat_white">Flat White</string>
+    <string name="status_preparing">Preparing</string>
 </resources>

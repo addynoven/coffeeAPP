@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,7 +61,7 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.Bottom
         ) {
             Text(
-                text = "FALL in Love with Coffee in Blissful Delight!",
+                text = stringResource(R.string.welcome_title),
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
@@ -70,7 +71,7 @@ fun WelcomeScreen(
             Spacer(modifier = Modifier.padding(16.dp))
 
             Text(
-                text = "Welcome to our cozy coffee corner, where every sip is a delight for you.",
+                text = stringResource(R.string.welcome_desc),
                 color = Color.LightGray,
                 textAlign = TextAlign.Center
             )
@@ -93,7 +94,7 @@ fun WelcomeScreen(
                 )
             ) {
                 Text(
-                    text = "Get Started",
+                    text = stringResource(R.string.welcome_button),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )

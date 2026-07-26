@@ -66,7 +66,26 @@ def sync_to_supabase(catalog_item, image_url):
         "description": catalog_item['description'],
         "category": catalog_item['category'],
         "price": catalog_item['price'],
-        "image_url": image_url
+        "image_url": image_url,
+        # Localized fields
+        "name_ja": catalog_item.get('name_ja'),
+        "description_ja": catalog_item.get('description_ja'),
+        "name_de": catalog_item.get('name_de'),
+        "description_de": catalog_item.get('description_de'),
+        "name_ru": catalog_item.get('name_ru'),
+        "description_ru": catalog_item.get('description_ru'),
+        "name_pt": catalog_item.get('name_pt'),
+        "description_pt": catalog_item.get('description_pt'),
+        "name_fr": catalog_item.get('name_fr'),
+        "description_fr": catalog_item.get('description_fr'),
+        "name_ar": catalog_item.get('name_ar'),
+        "description_ar": catalog_item.get('description_ar'),
+        "name_es": catalog_item.get('name_es'),
+        "description_es": catalog_item.get('description_es'),
+        "name_zh": catalog_item.get('name_zh'),
+        "description_zh": catalog_item.get('description_zh'),
+        "name_it": catalog_item.get('name_it'),
+        "description_it": catalog_item.get('description_it')
     }
     
     url = f"{SUPABASE_URL}/rest/v1/coffee"

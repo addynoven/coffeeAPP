@@ -3,9 +3,12 @@ package com.example.testing1.screens.detailscreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testing1.data.repository.CoffeeRepository
+import com.example.testing1.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,6 +19,9 @@ class DetailViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState
+
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun loadCoffee(coffeeId: Int) {
         viewModelScope.launch {
@@ -47,6 +53,7 @@ class DetailViewModel @Inject constructor(
                 coffeeId = currentItem.id,
                 size = _uiState.value.selectedSize
             )
+            _uiEvent.send(UiEvent.ShowSnackbar("${currentItem.name} added to cart! ☕"))
         }
     }
 }

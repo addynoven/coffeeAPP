@@ -2,66 +2,39 @@ package com.example.testing1.screens.cartscreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.*
 import com.example.testing1.R
 import com.example.testing1.data.local.address.AddressEntity
 import com.example.testing1.data.local.cart.CartEntity
 import com.example.testing1.screens.cartscreen.components.BottomOrderBar
 import com.example.testing1.screens.cartscreen.components.OrderItemCard
 import com.example.testing1.screens.cartscreen.components.PaymentRow
+import com.example.testing1.screens.ui_components.EmptyStateContent
 import com.example.testing1.screens.ui_components.MyBottomBar
 import com.example.testing1.util.LottieAnimations
+import com.example.testing1.util.UiEvent
 
 @Preview(showBackground = true)
 @Composable
@@ -75,6 +48,8 @@ fun CartScreenPreview() {
         onProfileClick = {},
         onUpdateQuantity = { _, _ -> },
         onAddressSelected = {},
+        onPromoCodeChange = {},
+        onClearPromoCode = {},
         onDiscountSelected = {},
         onPlaceOrder = {},
         onDismissSuccess = {}
@@ -91,9 +66,22 @@ fun CartRoute(
     viewModel: CartViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+                else -> {}
+            }
+        }
+    }
 
     CartScreen(
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
         onHomeClick = onHomeClick,
         onFavoriteClick = onFavoriteClick,
@@ -101,6 +89,8 @@ fun CartRoute(
         onProfileClick = onProfileClick,
         onUpdateQuantity = viewModel::updateQuantity,
         onAddressSelected = viewModel::onAddressSelected,
+        onPromoCodeChange = viewModel::onPromoCodeChange,
+        onClearPromoCode = viewModel::onClearPromoCode,
         onDiscountSelected = viewModel::onDiscountSelected,
         onPlaceOrder = viewModel::placeOrder,
         onDismissSuccess = viewModel::dismissOrderSuccess
@@ -111,6 +101,7 @@ fun CartRoute(
 @Composable
 fun CartScreen(
     uiState: CartUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit,
     onHomeClick: () -> Unit,
     onFavoriteClick: () -> Unit,
@@ -118,6 +109,8 @@ fun CartScreen(
     onProfileClick: () -> Unit,
     onUpdateQuantity: (CartEntity, Int) -> Unit,
     onAddressSelected: (AddressEntity) -> Unit,
+    onPromoCodeChange: (String) -> Unit,
+    onClearPromoCode: () -> Unit,
     onDiscountSelected: (com.example.testing1.models.Discount?) -> Unit,
     onPlaceOrder: () -> Unit,
     onDismissSuccess: () -> Unit
@@ -127,10 +120,11 @@ fun CartScreen(
     }
 
     var showAddressSelector by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-// ... (rest of top bar)
             CenterAlignedTopAppBar(
                 title = {
                     Text(
@@ -156,161 +150,270 @@ fun CartScreen(
         },
         bottomBar = {
             Column {
-                BottomOrderBar(
-                    totalPrice = uiState.totalPrice,
-                    onPlaceOrder = onPlaceOrder
-                )
+                if (uiState.cartItems.isNotEmpty()) {
+                    BottomOrderBar(
+                        totalPrice = uiState.totalPrice,
+                        onPlaceOrder = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onPlaceOrder()
+                        }
+                    )
+                }
                 MyBottomBar(
-                    selectedTab = "Cart",
-                    onTabSelected = { tab ->
-                        if (tab == "Home") onHomeClick()
-                        if (tab == "Favorite") onFavoriteClick()
-                        if (tab == "Cart") onCartClick()
-                        if (tab == "Profile") onProfileClick()
+                    selectedTabId = "cart",
+                    onTabSelected = { tabId ->
+                        when (tabId) {
+                            "home" -> onHomeClick()
+                            "favorite" -> onFavoriteClick()
+                            "profile" -> onProfileClick()
+                        }
                     }
                 )
             }
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Delivery Address",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = if (showAddressSelector) "Done" else "Edit",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { showAddressSelector = !showAddressSelector }
+        if (!uiState.isLoading && uiState.cartItems.isEmpty()) {
+            Box(modifier = Modifier.padding(innerPadding)) {
+                EmptyStateContent(
+                    icon = Icons.Default.ShoppingCart,
+                    title = "Your cart is empty",
+                    description = "Looks like you haven't added any coffee yet. Start exploring our delicious beans!",
+                    actionLabel = "Browse Coffee",
+                    onActionClick = onHomeClick
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Delivery Address",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = if (showAddressSelector) "Done" else "Edit",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable {
+                                showAddressSelector = !showAddressSelector
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (showAddressSelector) {
+                        if (uiState.addresses.isEmpty()) {
+                            Text(
+                                stringResource(R.string.no_addresses_error),
+                                color = MaterialTheme.colorScheme.error,
+                                fontSize = 12.sp
+                            )
+                        } else {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(uiState.addresses) { address ->
+                                    AddressChip(
+                                        address = address,
+                                        isSelected = uiState.selectedAddress?.addressId == address.addressId,
+                                        onClick = { onAddressSelected(address) }
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        // Show just the selected address compactly
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.LocationOn,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = uiState.selectedAddress?.let { "${it.tag}: ${it.fullAddress}" }
+                                    ?: "No address selected",
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+
+                items(uiState.cartItems) { item ->
+                    OrderItemCard(
+                        item = item,
+                        onIncreaseQuantity = {
+                            onUpdateQuantity(
+                                item.cartItem,
+                                item.cartItem.quantity + 1
+                            )
+                        },
+                        onDecreaseQuantity = {
+                            onUpdateQuantity(
+                                item.cartItem,
+                                item.cartItem.quantity - 1
+                            )
+                        }
                     )
                 }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                if (showAddressSelector) {
-                    if (uiState.addresses.isEmpty()) {
-                        Text(stringResource(R.string.no_addresses_error), color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                    } else {
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.ConfirmationNumber,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Discounts & Promo",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Promo Code Entry (Manual)
+                    val clipboardManager = LocalClipboardManager.current
+                    val isValid = uiState.selectedDiscount != null
+
+                    OutlinedTextField(
+                        value = uiState.promoCodeInput,
+                        onValueChange = onPromoCodeChange,
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Enter promo code") },
+                        trailingIcon = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (uiState.promoCodeInput.isNotEmpty()) {
+                                    IconButton(onClick = onClearPromoCode) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Clear",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                } else {
+                                    IconButton(onClick = {
+                                        clipboardManager.getText()?.text?.let { onPromoCodeChange(it) }
+                                    }) {
+                                        Icon(
+                                            Icons.Default.ContentPaste,
+                                            contentDescription = "Paste",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+
+                                if (isValid) {
+                                    Icon(
+                                        Icons.Default.CheckCircle,
+                                        contentDescription = "Applied",
+                                        tint = Color(0xFF4CAF50),
+                                        modifier = Modifier.size(20.dp).padding(end = 8.dp)
+                                    )
+                                }
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (isValid) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = if (isValid) Color(0xFF4CAF50) else MaterialTheme.colorScheme.outline
+                        )
+                    )
+
+                    if (uiState.availableDiscounts.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            "Or select from available:",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(uiState.addresses) { address ->
-                                AddressChip(
-                                    address = address,
-                                    isSelected = uiState.selectedAddress?.addressId == address.addressId,
-                                    onClick = { onAddressSelected(address) }
+                            item {
+                                DiscountChip(
+                                    discount = null,
+                                    isSelected = uiState.selectedDiscount == null,
+                                    onClick = { onDiscountSelected(null) }
+                                )
+                            }
+                            items(uiState.availableDiscounts) { discount ->
+                                DiscountChip(
+                                    discount = discount,
+                                    isSelected = uiState.selectedDiscount?.code == discount.code,
+                                    onClick = { onDiscountSelected(discount) }
                                 )
                             }
                         }
-                    }
-                } else {
-                    // Show just the selected address compactly
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
-                        Spacer(modifier = Modifier.width(8.dp))
+                    } else {
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = uiState.selectedAddress?.let { "${it.tag}: ${it.fullAddress}" } ?: "No address selected",
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            "Tip: Try code 'COFFEE10' for 10% off",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                         )
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            }
 
-            items(uiState.cartItems) { item ->
-                OrderItemCard(
-                    item = item,
-                    onIncreaseQuantity = { onUpdateQuantity(item.cartItem, item.cartItem.quantity + 1) },
-                    onDecreaseQuantity = { onUpdateQuantity(item.cartItem, item.cartItem.quantity - 1) }
-                )
-            }
-
-            if (uiState.availableDiscounts.isNotEmpty()) {
                 item {
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Discounts & Promo",
+                        text = stringResource(R.string.payment_summary_title),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Promo Code Entry (Manual)
-                    OutlinedTextField(
-                        value = uiState.selectedDiscount?.code ?: "",
-                        onValueChange = { code ->
-                            val found = uiState.availableDiscounts.find { it.code.uppercase() == code.uppercase() }
-                            onDiscountSelected(found)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Enter promo code") },
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                        )
-                    )
-                    
                     Spacer(modifier = Modifier.height(12.dp))
-                    
-                    Text("Or select from available:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        item {
-                            DiscountChip(
-                                discount = null,
-                                isSelected = uiState.selectedDiscount == null,
-                                onClick = { onDiscountSelected(null) }
-                            )
-                        }
-                        items(uiState.availableDiscounts) { discount ->
-                            DiscountChip(
-                                discount = discount,
-                                isSelected = uiState.selectedDiscount?.code == discount.code,
-                                onClick = { onDiscountSelected(discount) }
-                            )
-                        }
+                    PaymentRow(
+                        stringResource(R.string.price_label),
+                        "$ ${"%.2f".format(uiState.subtotal)}"
+                    )
+                    if (uiState.discountAmount > 0) {
+                        PaymentRow(
+                            "Discount",
+                            "- $ ${"%.2f".format(uiState.discountAmount)}",
+                            color = Color(0xFF4CAF50)
+                        )
                     }
+                    PaymentRow(
+                        stringResource(R.string.delivery_fee_label),
+                        "$ ${"%.2f".format(uiState.deliveryFee)}"
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    PaymentRow(
+                        "Total Payment",
+                        "$ ${"%.2f".format(uiState.totalPrice)}",
+                        isBold = true
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.payment_summary_title),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                PaymentRow(stringResource(R.string.price_label), "$ ${"%.2f".format(uiState.subtotal)}")
-                if (uiState.discountAmount > 0) {
-                    PaymentRow("Discount", "- $ ${"%.2f".format(uiState.discountAmount)}", color = Color(0xFF4CAF50))
-                }
-                PaymentRow(stringResource(R.string.delivery_fee_label), "$ ${"%.2f".format(uiState.deliveryFee)}")
-                Spacer(modifier = Modifier.height(8.dp))
-                androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                PaymentRow("Total Payment", "$ ${"%.2f".format(uiState.totalPrice)}", isBold = true)
-                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
@@ -339,7 +442,12 @@ fun DiscountChip(
 }
 
 @Composable
-fun PaymentRow(label: String, value: String, isBold: Boolean = false, color: Color = MaterialTheme.colorScheme.onBackground) {
+fun PaymentRow(
+    label: String,
+    value: String,
+    isBold: Boolean = false,
+    color: Color = MaterialTheme.colorScheme.onBackground
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -376,8 +484,8 @@ fun AddressChip(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                Icons.Default.LocationOn, 
-                contentDescription = null, 
+                Icons.Default.LocationOn,
+                contentDescription = null,
                 modifier = Modifier.size(14.dp),
                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -394,20 +502,24 @@ fun AddressChip(
 
 @Composable
 fun OrderSuccessDialog(onDismiss: () -> Unit) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(LottieAnimations.ADD_TO_CART))
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.RawRes(
+            LottieAnimations.ADD_TO_CART
+        )
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { 
+        icon = {
             Box(
                 modifier = Modifier.size(120.dp),
                 contentAlignment = Alignment.Center
             ) {
                 if (composition == null) {
                     Icon(
-                        Icons.Default.CheckCircle, 
-                        contentDescription = null, 
-                        modifier = Modifier.size(80.dp), 
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size(80.dp),
                         tint = Color(0xFF4CAF50)
                     )
                 } else {

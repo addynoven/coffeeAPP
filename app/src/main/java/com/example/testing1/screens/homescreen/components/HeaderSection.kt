@@ -25,6 +25,7 @@ import com.example.testing1.R
 fun HeaderSection(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
+    onClearSearch: () -> Unit,
     onSearchClick: () -> Unit,
     onSearchFocusChange: (Boolean) -> Unit
 ) {
@@ -59,6 +60,7 @@ fun HeaderSection(
         SearchBar(
             searchText = searchText,
             onSearchTextChange = onSearchTextChange,
+            onClearSearch = onClearSearch,
             onSearchClick = onSearchClick,
             onFocusChange = onSearchFocusChange
         )

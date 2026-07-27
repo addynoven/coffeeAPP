@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.screens.favoritescreen.components.FavoriteItemCard
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
+import com.example.testing1.screens.ui_components.EmptyStateContent
 import com.example.testing1.screens.ui_components.MyBottomBar
 
 @Preview(showBackground = true)
@@ -81,12 +84,13 @@ fun FavoriteScreen(
     Scaffold(
         bottomBar = {
             MyBottomBar(
-                selectedTab = "Favorite",
-                onTabSelected = { tab ->
-                    if (tab == "Home") onHomeClick()
-                    if (tab == "Cart") onCartClick()
-                    if (tab == "Favorite") onFavoriteClick()
-                    if (tab == "Profile") onProfileClick()
+                selectedTabId = "favorite",
+                onTabSelected = { tabId ->
+                    when (tabId) {
+                        "home" -> onHomeClick()
+                        "cart" -> onCartClick()
+                        "profile" -> onProfileClick()
+                    }
                 }
             )
         },
@@ -98,24 +102,34 @@ fun FavoriteScreen(
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Wishlist",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(modifier = Modifier.height(24.dp))
+            if (!uiState.isLoading && uiState.favoriteItems.isEmpty()) {
+                EmptyStateContent(
+                    icon = Icons.Default.FavoriteBorder,
+                    title = "Your wishlist is empty",
+                    description = "You haven't saved any coffee yet. Tap the heart icon to save your favorites!",
+                    actionLabel = "Discover Coffee",
+                    onActionClick = onHomeClick
+                )
+            } else {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "Wishlist",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.height(24.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(uiState.favoriteItems) { item ->
-                    FavoriteItemCard(
-                        item = item,
-                        onRemoveClick = { onRemoveFavorite(item) }
-                    )
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(uiState.favoriteItems) { item ->
+                        FavoriteItemCard(
+                            item = item,
+                            onRemoveClick = { onRemoveFavorite(item) }
+                        )
+                    }
                 }
             }
         }

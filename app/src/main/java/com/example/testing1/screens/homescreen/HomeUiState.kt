@@ -10,5 +10,7 @@ data class HomeUiState(
     val coffeeItems: List<CoffeeEntity> = emptyList(),
     val recentSearches: List<SearchHistoryEntity> = emptyList(),
     val searchText: String = "",
-    val isSearchFocused: Boolean = false
+    val isSearchFocused: Boolean = false,
+    val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false
 )

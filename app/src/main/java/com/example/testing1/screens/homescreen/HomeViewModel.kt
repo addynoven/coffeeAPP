@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.data.repository.CoffeeRepository
 import com.example.testing1.models.CoffeeCategory
+import com.example.testing1.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,9 +25,12 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState>
         get() = _uiState
 
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     init {
         loadData()
-        refreshData()
+        onRefresh()
     }
 
     private fun loadData() {
@@ -41,9 +47,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun refreshData() {
+    fun onRefresh() {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRefreshing = true)
             repository.refreshCoffee()
+            _uiState.value = _uiState.value.copy(isRefreshing = false)
         }
     }
 
@@ -54,6 +62,11 @@ class HomeViewModel @Inject constructor(
 
     fun onSearchTextChange(text: String) {
         _uiState.value = _uiState.value.copy(searchText = text)
+        filterCoffee()
+    }
+
+    fun onClearSearch() {
+        _uiState.value = _uiState.value.copy(searchText = "")
         filterCoffee()
     }
 
@@ -79,7 +92,14 @@ class HomeViewModel @Inject constructor(
 
     fun toggleFavorite(coffee: CoffeeEntity) {
         viewModelScope.launch {
-            repository.toggleFavorite(coffee.id, !coffee.isFavorite)
+            val newStatus = !coffee.isFavorite
+            repository.toggleFavorite(coffee.id, newStatus)
+            val message = if (newStatus) {
+                "${coffee.name} added to favorites ❤️"
+            } else {
+                "${coffee.name} removed from favorites"
+            }
+            _uiEvent.send(UiEvent.ShowSnackbar(message))
         }
     }
 
@@ -95,7 +115,8 @@ class HomeViewModel @Inject constructor(
             matchesSearch && matchesCategory
         }
         _uiState.value = _uiState.value.copy(
-            coffeeItems = filteredItems
+            coffeeItems = filteredItems,
+            isLoading = false
         )
     }
 }

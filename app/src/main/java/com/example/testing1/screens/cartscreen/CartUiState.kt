@@ -10,6 +10,7 @@ data class CartUiState(
     val selectedAddress: AddressEntity? = null,
     val availableDiscounts: List<Discount> = emptyList(),
     val selectedDiscount: Discount? = null,
+    val promoCodeInput: String = "",
     val subtotal: Double = 0.0,
     val discountAmount: Double = 0.0,
     val totalPrice: Double = 0.0,

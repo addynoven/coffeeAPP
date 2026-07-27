@@ -129,12 +129,13 @@ fun ProfileScreen(
     Scaffold(
         bottomBar = {
             MyBottomBar(
-                selectedTab = "Profile",
-                onTabSelected = { tab ->
-                    if (tab == "Home") onHomeClick()
-                    if (tab == "Cart") onCartClick()
-                    if (tab == "Favorite") onFavoriteClick()
-                    if (tab == "Profile") onProfileClick()
+                selectedTabId = "profile",
+                onTabSelected = { tabId ->
+                    when (tabId) {
+                        "home" -> onHomeClick()
+                        "cart" -> onCartClick()
+                        "favorite" -> onFavoriteClick()
+                    }
                 }
             )
         },

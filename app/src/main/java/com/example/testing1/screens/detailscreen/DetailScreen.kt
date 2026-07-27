@@ -22,17 +22,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +51,7 @@ import com.example.testing1.screens.detailscreen.components.BottomBuyBar
 import com.example.testing1.screens.detailscreen.components.SizeOption
 import com.example.testing1.screens.ui_components.AnimatedFavoriteButton
 import com.example.testing1.util.LocalCloudinaryHelper
+import com.example.testing1.util.UiEvent
 import com.example.testing1.util.shimmerLoading
 
 @Preview(showBackground = true)
@@ -78,13 +84,26 @@ fun DetailRoute(
     viewModel: DetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(coffeeId) {
         viewModel.loadCoffee(coffeeId)
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+                else -> {}
+            }
+        }
+    }
+
     DetailScreen(
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
         onSizeSelected = viewModel::onSizeSelected,
         onToggleFavorite = viewModel::toggleFavorite,
@@ -95,6 +114,7 @@ fun DetailRoute(
 @Composable
 fun DetailScreen(
     uiState: DetailUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit,
     onSizeSelected: (String) -> Unit,
     onToggleFavorite: () -> Unit,
@@ -103,8 +123,10 @@ fun DetailScreen(
     val item = uiState.coffeeItem ?: return
     val cloudinaryHelper = LocalCloudinaryHelper.current
     val language = LocalConfiguration.current.locales[0].language
+    val haptic = LocalHapticFeedback.current
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             Row(
                 modifier = Modifier
@@ -130,7 +152,10 @@ fun DetailScreen(
                 
                 AnimatedFavoriteButton(
                     isFavorite = item.isFavorite,
-                    onClick = onToggleFavorite,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onToggleFavorite()
+                    },
                     modifier = Modifier
                         .background(
                             Color.Black.copy(alpha = 0.2f),
@@ -141,7 +166,10 @@ fun DetailScreen(
             }
         },
         bottomBar = {
-            BottomBuyBar(price = item.price, onAddToCartClick = onAddToCart)
+            BottomBuyBar(price = item.price, onAddToCartClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onAddToCart()
+            })
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->

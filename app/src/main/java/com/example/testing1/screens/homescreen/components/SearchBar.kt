@@ -25,13 +25,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.example.testing1.R
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.ui.platform.LocalClipboardManager
+
 @Composable
 fun SearchBar(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
+    onClearSearch: () -> Unit,
     onSearchClick: () -> Unit,
     onFocusChange: (Boolean) -> Unit = {}
 ) {
+    val clipboardManager = LocalClipboardManager.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -49,6 +56,29 @@ fun SearchBar(
                     modifier = Modifier.size(20.dp),
                     tint = Color.Gray
                 )
+            },
+            trailingIcon = {
+                if (searchText.isNotEmpty()) {
+                    IconButton(onClick = onClearSearch) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Clear",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                } else {
+                    IconButton(onClick = {
+                        clipboardManager.getText()?.text?.let { onSearchTextChange(it) }
+                    }) {
+                        Icon(
+                            Icons.Default.ContentPaste,
+                            contentDescription = "Paste",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
             },
             singleLine = true,
             shape = RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp),

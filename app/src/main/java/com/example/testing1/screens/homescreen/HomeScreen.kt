@@ -2,35 +2,25 @@ package com.example.testing1.screens.homescreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +35,7 @@ import com.example.testing1.screens.homescreen.components.CategoryRow
 import com.example.testing1.screens.homescreen.components.CoffeeGrid
 import com.example.testing1.screens.homescreen.components.HeaderSection
 import com.example.testing1.screens.ui_components.MyBottomBar
+import com.example.testing1.util.UiEvent
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -52,9 +43,11 @@ fun HomeScreenPreview() {
     HomeScreen(
         uiState = HomeUiState(),
         onSearchTextChange = {},
+        onClearSearch = {},
         onSearchClick = {},
         onCategorySelected = {},
         onToggleFavorite = {},
+        onRefresh = {},
         onItemClick = {},
         onCartClick = {},
         onFavoriteClick = {},
@@ -73,13 +66,28 @@ fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+                else -> {}
+            }
+        }
+    }
 
     HomeScreen(
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onSearchTextChange = viewModel::onSearchTextChange,
+        onClearSearch = viewModel::onClearSearch,
         onSearchClick = viewModel::onSearchClick,
         onCategorySelected = viewModel::onCategorySelected,
         onToggleFavorite = viewModel::toggleFavorite,
+        onRefresh = viewModel::onRefresh,
         onItemClick = onItemClick,
         onCartClick = onCartClick,
         onFavoriteClick = onFavoriteClick,
@@ -89,13 +97,17 @@ fun HomeRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSearchTextChange: (String) -> Unit,
+    onClearSearch: () -> Unit,
     onSearchClick: () -> Unit,
     onCategorySelected: (com.example.testing1.models.CoffeeCategory) -> Unit,
     onToggleFavorite: (CoffeeEntity) -> Unit,
+    onRefresh: () -> Unit,
     onItemClick: (CoffeeEntity) -> Unit,
     onCartClick: () -> Unit,
     onFavoriteClick: () -> Unit,
@@ -103,83 +115,100 @@ fun HomeScreen(
     onSearchFocusChange: (Boolean) -> Unit,
     onRecentSearchClick: (String) -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             MyBottomBar(
-                selectedTab = "Home",
-                onTabSelected = { tab ->
-                    if (tab == "Cart") onCartClick()
-                    if (tab == "Favorite") onFavoriteClick()
-                    if (tab == "Profile") onProfileClick()
+                selectedTabId = "home",
+                onTabSelected = { tabId ->
+                    when (tabId) {
+                        "cart" -> onCartClick()
+                        "favorite" -> onFavoriteClick()
+                        "profile" -> onProfileClick()
+                    }
                 }
             )
         }
     ) { innerPadding ->
-        Column(
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
         ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(320.dp)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .verticalScroll(rememberScrollState())
             ) {
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(240.dp)
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    Color(0xFF131313),
-                                    Color(0xFF313131)
+                        .height(320.dp)
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(240.dp)
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        Color(0xFF131313),
+                                        Color(0xFF313131)
+                                    )
                                 )
                             )
-                        )
-                )
-
-                Column {
-                    HeaderSection(
-                        uiState.searchText,
-                        onSearchTextChange,
-                        onSearchClick,
-                        onSearchFocusChange
                     )
-                    
-                    if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {
-                        RecentSearchesSection(
-                            searches = uiState.recentSearches,
-                            onSearchClick = onRecentSearchClick
+
+                    Column {
+                        HeaderSection(
+                            uiState.searchText,
+                            onSearchTextChange,
+                            onClearSearch,
+                            onSearchClick,
+                            onSearchFocusChange
                         )
+                        
+                        if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {
+                            RecentSearchesSection(
+                                searches = uiState.recentSearches,
+                                onSearchClick = onRecentSearchClick
+                            )
+                        }
+                    }
+
+                    if (!uiState.isSearchFocused) {
+                        Banner(modifier = Modifier.align(Alignment.BottomCenter))
                     }
                 }
 
-                if (!uiState.isSearchFocused) {
-                    Banner(modifier = Modifier.align(Alignment.BottomCenter))
-                }
+                Spacer(modifier = Modifier.height(24.dp))
+
+                CategoryRow(
+                    categories = uiState.categories,
+                    selectedCategory = uiState.selectedCategory,
+                    onCategorySelected = onCategorySelected
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                CoffeeGrid(
+                    items = uiState.coffeeItems,
+                    isLoading = uiState.isLoading,
+                    onItemClick = onItemClick,
+                    onToggleFavorite = { coffee ->
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onToggleFavorite(coffee)
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            CategoryRow(
-                categories = uiState.categories,
-                selectedCategory = uiState.selectedCategory,
-                onCategorySelected = onCategorySelected
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            CoffeeGrid(
-                items = uiState.coffeeItems,
-                onItemClick = onItemClick,
-                onToggleFavorite = onToggleFavorite
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

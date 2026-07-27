@@ -16,34 +16,34 @@ import androidx.compose.ui.unit.dp
 import com.example.testing1.R
 
 data class NavItem(
+    val id: String,
     val title: String,
     val icon: Int
 )
 
 @Composable
-fun MyBottomBar(selectedTab: String = "Home", onTabSelected: (String) -> Unit = {}) {
+fun MyBottomBar(selectedTabId: String = "home", onTabSelected: (String) -> Unit = {}) {
     val navItems = listOf(
-        NavItem(stringResource(R.string.nav_home), R.drawable.regular_outline_home),
-        NavItem(stringResource(R.string.nav_favorite), R.drawable.regular_outline_heart),
-        NavItem(stringResource(R.string.nav_cart), R.drawable.regular_outline_bag),
-        NavItem(stringResource(R.string.nav_profile), R.drawable.outline_account_circle_24)
+        NavItem("home", stringResource(R.string.nav_home), R.drawable.regular_outline_home),
+        NavItem("favorite", stringResource(R.string.nav_favorite), R.drawable.regular_outline_heart),
+        NavItem("cart", stringResource(R.string.nav_cart), R.drawable.regular_outline_bag),
+        NavItem("profile", stringResource(R.string.nav_profile), R.drawable.outline_account_circle_24)
     )
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.height(70.dp),
         tonalElevation = 8.dp
     ) {
         navItems.forEach { item ->
             NavigationBarItem(
-                selected = item.title == selectedTab,
+                selected = item.id == selectedTabId,
                 icon = {
                     Icon(
                         painter = painterResource(id = item.icon),
                         contentDescription = item.title
                     )
                 },
-                onClick = { onTabSelected(item.title) },
+                onClick = { onTabSelected(item.id) },
                 alwaysShowLabel = false,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.primary,

@@ -16,7 +16,10 @@ import com.example.testing1.data.local.user.UserEntity
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["userId"])]
+    indices = [
+        Index(value = ["userId"]),
+        Index(value = ["userId", "query"], unique = true)
+    ]
 )
 data class SearchHistoryEntity(
     @PrimaryKey(autoGenerate = true)

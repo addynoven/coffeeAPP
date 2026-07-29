@@ -300,13 +300,20 @@ fun CartScreen(
 
                     // Promo Code Entry (Manual)
                     val clipboardManager = LocalClipboardManager.current
-                    val isValid = uiState.selectedDiscount != null
+                    val hasError = uiState.promoCodeError != null
+                    val isValid = uiState.selectedDiscount != null && !hasError
 
                     OutlinedTextField(
                         value = uiState.promoCodeInput,
                         onValueChange = onPromoCodeChange,
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("Enter promo code") },
+                        isError = hasError,
+                        supportingText = {
+                            if (hasError) {
+                                Text(text = uiState.promoCodeError ?: "", color = MaterialTheme.colorScheme.error)
+                            }
+                        },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (uiState.promoCodeInput.isNotEmpty()) {
@@ -336,14 +343,21 @@ fun CartScreen(
                                         tint = Color(0xFF4CAF50),
                                         modifier = Modifier.size(20.dp).padding(end = 8.dp)
                                     )
+                                } else if (hasError) {
+                                    Icon(
+                                        Icons.Default.Error,
+                                        contentDescription = "Error",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(20.dp).padding(end = 8.dp)
+                                    )
                                 }
                             }
                         },
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (isValid) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = if (isValid) Color(0xFF4CAF50) else MaterialTheme.colorScheme.outline
+                            focusedBorderColor = if (isValid) Color(0xFF4CAF50) else if (hasError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = if (isValid) Color(0xFF4CAF50) else if (hasError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
                         )
                     )
 

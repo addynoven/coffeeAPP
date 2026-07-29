@@ -31,21 +31,26 @@ class DiscountRepository @Inject constructor(
                 .select()
                 .decodeList<RemoteDiscount>()
 
-            val entities = remoteDiscounts.map { remote ->
-                DiscountEntity(
-                    code = remote.code,
-                    description = remote.description,
-                    type = remote.type,
-                    value = remote.value,
-                    minOrderAmount = remote.minOrderAmount,
-                    maxDiscountAmount = remote.maxDiscountAmount
-                )
-            }
+            if (remoteDiscounts.isNotEmpty()) {
+                val entities = remoteDiscounts.map { remote ->
+                    DiscountEntity(
+                        code = remote.code,
+                        description = remote.description,
+                        type = remote.type,
+                        value = remote.value,
+                        minOrderAmount = remote.minOrderAmount,
+                        maxDiscountAmount = remote.maxDiscountAmount
+                    )
+                }
 
-            discountDao.clearDiscounts()
-            discountDao.insertDiscounts(entities)
+                discountDao.clearDiscounts()
+                discountDao.insertDiscounts(entities)
+            } else {
+                println("Sync Discounts: No discounts found in remote.")
+            }
         } catch (e: Exception) {
             println("Sync Discounts Error: ${e.message}")
+            e.printStackTrace()
         }
     }
 }

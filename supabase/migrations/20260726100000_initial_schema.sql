@@ -3,12 +3,13 @@
 -- 1. Coffee Catalog (Global)
 CREATE TABLE IF NOT EXISTS coffee (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     category TEXT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     image_url TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 2. Favorites (User Specific)
@@ -86,3 +87,17 @@ CREATE POLICY "Allow anon crud on addresses" ON addresses FOR ALL TO anon USING 
 CREATE POLICY "Allow anon crud on orders" ON orders FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "Allow anon crud on order_items" ON order_items FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "Allow anon crud on search_history" ON search_history FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- Functions & Triggers
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_coffee_updated_at
+    BEFORE UPDATE ON coffee
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();

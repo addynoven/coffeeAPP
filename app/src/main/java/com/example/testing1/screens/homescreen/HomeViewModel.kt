@@ -30,7 +30,8 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadData()
-        onRefresh()
+        // Silent refresh on startup (background only)
+        onRefresh(showUI = false)
     }
 
     private fun loadData() {
@@ -47,11 +48,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onRefresh() {
+    fun onRefresh(showUI: Boolean = true) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isRefreshing = true)
+            if (showUI) _uiState.value = _uiState.value.copy(isRefreshing = true)
             repository.refreshCoffee()
-            _uiState.value = _uiState.value.copy(isRefreshing = false)
+            if (showUI) _uiState.value = _uiState.value.copy(isRefreshing = false)
         }
     }
 

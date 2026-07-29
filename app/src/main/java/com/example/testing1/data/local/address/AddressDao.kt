@@ -23,6 +23,9 @@ interface AddressDao {
     @Delete
     suspend fun deleteAddress(address: AddressEntity)
 
+    @Query("DELETE FROM addresses WHERE userId = :userId")
+    suspend fun clearAddresses(userId: String)
+
     @Query("UPDATE addresses SET isDefault = 0 WHERE userId = :userId")
     suspend fun clearDefaults(userId: String)
 

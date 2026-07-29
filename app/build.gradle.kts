@@ -34,9 +34,21 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("supabase.url") ?: ""}\"")
-        buildConfigField("String", "SUPABASE_KEY", "\"${localProperties.getProperty("supabase.key") ?: ""}\"")
-        buildConfigField("String", "CLOUDINARY_URL", "\"${localProperties.getProperty("cloudinary.url") ?: ""}\"")
+        buildConfigField(
+            "String",
+            "SUPABASE_URL",
+            "\"${localProperties.getProperty("supabase.url") ?: ""}\""
+        )
+        buildConfigField(
+            "String",
+            "SUPABASE_KEY",
+            "\"${localProperties.getProperty("supabase.key") ?: ""}\""
+        )
+        buildConfigField(
+            "String",
+            "CLOUDINARY_URL",
+            "\"${localProperties.getProperty("cloudinary.url") ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -86,6 +98,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     // Supabase
+    implementation(libs.supabase.auth)
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.storage)
     implementation(libs.ktor.client.core)
@@ -103,6 +116,10 @@ dependencies {
 
     // Cloudinary
     implementation(libs.cloudinary.kotlin)
+
+    // PowerSync
+    implementation(libs.powersync.core)
+    implementation(libs.powersync.integration.supabase)
 
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)

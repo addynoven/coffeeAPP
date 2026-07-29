@@ -16,7 +16,11 @@ import com.example.testing1.data.local.user.UserEntity
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["userId"]), Index(value = ["isDefault"])]
+    indices = [
+        Index(value = ["userId"]), 
+        Index(value = ["isDefault"]),
+        Index(value = ["userId", "tag"], unique = true)
+    ]
 )
 data class AddressEntity(
     @PrimaryKey(autoGenerate = true)

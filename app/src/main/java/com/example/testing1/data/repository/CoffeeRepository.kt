@@ -74,9 +74,10 @@ class CoffeeRepository @Inject constructor(
     // Sync Operations
     suspend fun refreshCoffee() {
         try {
-            val lastSync = settingsRepository.getLastCoffeeSync().first()
+            val localCount = coffeeDao.getCoffeeCount()
+            val lastSync = if (localCount == 0) "1970-01-01T00:00:00Z" else settingsRepository.getLastCoffeeSync().first()
 
-            // A. Fetch ONLY items changed since last sync
+            // A. Fetch items changed since last sync
             val remoteCoffees = supabase.from("coffee")
                 .select {
                     filter {
@@ -145,6 +146,7 @@ class CoffeeRepository @Inject constructor(
                 .select { filter { eq("user_id", CURRENT_USER_ID) } }
                 .decodeList<RemoteCart>()
 
+            cartDao.clearCart(CURRENT_USER_ID)
             val cartEntities = remoteCart.map { remote ->
                 CartEntity(
                     userId = CURRENT_USER_ID,
@@ -160,6 +162,7 @@ class CoffeeRepository @Inject constructor(
                 .select { filter { eq("user_id", CURRENT_USER_ID) } }
                 .decodeList<RemoteAddress>()
 
+            addressDao.clearAddresses(CURRENT_USER_ID)
             remoteAddresses.forEach { remote ->
                 addressDao.insertAddress(
                     AddressEntity(
@@ -168,6 +171,23 @@ class CoffeeRepository @Inject constructor(
                         fullAddress = remote.fullAddress,
                         isDefault = remote.isDefault,
                         lastUsedTimestamp = remote.lastUsedTimestamp
+                    )
+                )
+            }
+
+            // 4. Sync Search History
+            val remoteSearchHistory = supabase.from("search_history")
+                .select { filter { eq("user_id", CURRENT_USER_ID) } }
+                .decodeList<RemoteSearchHistory>()
+
+            searchDao.clearHistory(CURRENT_USER_ID)
+            remoteSearchHistory.forEach { remote ->
+                searchDao.insertSearch(
+                    SearchHistoryEntity(
+                        userId = CURRENT_USER_ID,
+                        query = remote.query,
+                        resultCount = remote.resultCount,
+                        timestamp = remote.timestamp
                     )
                 )
             }

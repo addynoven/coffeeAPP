@@ -11,6 +11,7 @@ data class CartUiState(
     val availableDiscounts: List<Discount> = emptyList(),
     val selectedDiscount: Discount? = null,
     val promoCodeInput: String = "",
+    val promoCodeError: String? = null,
     val subtotal: Double = 0.0,
     val discountAmount: Double = 0.0,
     val totalPrice: Double = 0.0,

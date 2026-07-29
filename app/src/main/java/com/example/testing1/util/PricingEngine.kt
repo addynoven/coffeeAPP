@@ -9,6 +9,7 @@ object PricingEngine {
     data class PriceBreakdown(
         val subtotal: Double,
         val discountAmount: Double,
+        val discountError: String? = null,
         val deliveryFee: Double,
         val grandTotal: Double
     )
@@ -31,6 +32,8 @@ object PricingEngine {
 
         // 2. Calculate Discount
         var discountAmount = 0.0
+        var discountError: String? = null
+
         appliedDiscount?.let { discount ->
             if (subtotal >= discount.minOrderAmount) {
                 discountAmount = when (discount.type) {
@@ -44,6 +47,9 @@ object PricingEngine {
                         discountAmount = cap
                     }
                 }
+            } else {
+                val difference = discount.minOrderAmount - subtotal
+                discountError = "Add $ ${"%.2f".format(difference)} more to use this code"
             }
         }
 
@@ -53,6 +59,7 @@ object PricingEngine {
         return PriceBreakdown(
             subtotal = subtotal,
             discountAmount = discountAmount,
+            discountError = discountError,
             deliveryFee = deliveryFee,
             grandTotal = grandTotal
         )

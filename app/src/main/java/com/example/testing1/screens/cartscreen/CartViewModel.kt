@@ -59,8 +59,16 @@ class CartViewModel @Inject constructor(
                 val pricing = PricingEngine.calculatePrice(items, selectedDiscount)
 
                 val previousDiscount = _uiState.value.selectedDiscount
-                if (selectedDiscount != null && previousDiscount?.code != selectedDiscount.code) {
+                if (selectedDiscount != null && previousDiscount?.code != selectedDiscount.code && pricing.discountError == null) {
                     _uiEvent.send(UiEvent.ShowSnackbar("Coupon '${selectedDiscount.code}' applied! 🏷️"))
+                }
+
+                // Determine Validation Error
+                val validationError = when {
+                    promoCodeInput.isBlank() -> null
+                    selectedDiscount == null -> "Invalid code"
+                    pricing.discountError != null -> pricing.discountError
+                    else -> null
                 }
 
                 _uiState.value = _uiState.value.copy(
@@ -69,9 +77,10 @@ class CartViewModel @Inject constructor(
                     availableDiscounts = discounts,
                     selectedDiscount = selectedDiscount,
                     promoCodeInput = promoCodeInput,
+                    promoCodeError = validationError,
                     selectedAddress = newSelectedAddress,
                     subtotal = pricing.subtotal,
-                    discountAmount = pricing.discountAmount,
+                    discountAmount = if (pricing.discountError == null) pricing.discountAmount else 0.0,
                     totalPrice = pricing.grandTotal,
                     deliveryFee = pricing.deliveryFee,
                     isLoading = false
@@ -91,10 +100,12 @@ class CartViewModel @Inject constructor(
     }
 
     fun onPromoCodeChange(newText: String) {
-        _promoCodeInput.value = newText
+        val upperText = newText.uppercase()
+        _promoCodeInput.value = upperText
+        
         // Auto-apply if match found
         val discounts = _uiState.value.availableDiscounts
-        val match = discounts.find { it.code.equals(newText, ignoreCase = true) }
+        val match = discounts.find { it.code == upperText }
         _selectedDiscount.value = match
     }
 

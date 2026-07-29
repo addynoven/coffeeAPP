@@ -20,6 +20,9 @@ interface CartDao {
     @Delete
     suspend fun removeFromCart(cartEntity: CartEntity)
 
+    @Query("DELETE FROM cart WHERE userId = :userId")
+    suspend fun clearCart(userId: String)
+
     @Transaction
     @Query("SELECT * FROM cart WHERE userId = :userId")
     fun getCartItems(userId: String): Flow<List<CartItemWithCoffee>>

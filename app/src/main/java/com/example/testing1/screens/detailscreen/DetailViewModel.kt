@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,9 +26,14 @@ class DetailViewModel @Inject constructor(
 
     fun loadCoffee(coffeeId: String) {
         viewModelScope.launch {
-            repository.getCoffeeById(coffeeId).collect { item ->
+            combine(
+                repository.getCoffeeById(coffeeId),
+                repository.isFavorite(coffeeId)
+            ) { item, isFav ->
+                item?.copy(isFavorite = isFav)
+            }.collect { itemWithFav ->
                 _uiState.value = _uiState.value.copy(
-                    coffeeItem = item,
+                    coffeeItem = itemWithFav,
                     isLoading = false
                 )
             }

@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import kotlinx.coroutines.flow.combine
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: CoffeeRepository
@@ -41,8 +43,16 @@ class HomeViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             Log.d("HomeViewModel", "Starting coffee data collection...")
-            repository.getAllCoffee().collect { coffees ->
-                Log.d("HomeViewModel", "Received ${coffees.size} coffee items from repository")
+            combine(
+                repository.getAllCoffee(),
+                repository.getFavoriteCoffees()
+            ) { coffees, favorites ->
+                val favIds = favorites.map { it.id }.toSet()
+                coffees.map { coffee ->
+                    coffee.copy(isFavorite = favIds.contains(coffee.id))
+                }
+            }.collect { coffees ->
+                Log.d("HomeViewModel", "Received ${coffees.size} coffee items with updated favorite state")
                 allCoffee = coffees
                 updateUi()
             }

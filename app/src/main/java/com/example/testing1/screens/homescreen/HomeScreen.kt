@@ -181,14 +181,11 @@ fun HomeScreen(
             ) {
                 item {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(280.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Box(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(240.dp)
                                 .background(
                                     brush = Brush.linearGradient(
                                         colors = listOf(
@@ -197,9 +194,7 @@ fun HomeScreen(
                                         )
                                     )
                                 )
-                        )
-
-                        Column {
+                        ) {
                             HeaderSection(
                                 searchText = uiState.searchText,
                                 onSearchTextChange = onSearchTextChange,
@@ -209,12 +204,16 @@ fun HomeScreen(
                                 selectedLocationText = displayLocationText,
                                 onLocationClick = { showAddressSheet = true }
                             )
-                            
+
                             if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {
                                 RecentSearchesSection(
                                     searches = uiState.recentSearches,
                                     onSearchClick = onRecentSearchClick
                                 )
+                            }
+
+                            if (!uiState.isSearchFocused) {
+                                Spacer(modifier = Modifier.height(70.dp))
                             }
                         }
 
@@ -225,13 +224,13 @@ fun HomeScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     CategoryRow(
                         categories = uiState.categories,
                         selectedCategory = uiState.selectedCategory,
                         onCategorySelected = onCategorySelected
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 if (uiState.isLoading) {

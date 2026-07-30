@@ -73,7 +73,7 @@
     <!-- Order History Screen -->
     <string name="order_history_title">Order History</string>
     <string name="no_orders_message">No orders placed yet.</string>
-    <string name="order_id_label">Order #%1$d</string>
+    <string name="order_id_label">Order #%1$s</string>
     <string name="delivered_to_label">Delivered to:</string>
     <string name="total_price_label">Total Price</string>
     <string name="add_to_cart_desc">Add to Cart</string>

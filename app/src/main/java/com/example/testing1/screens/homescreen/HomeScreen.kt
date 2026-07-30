@@ -213,13 +213,21 @@ fun HomeScreen(
                             }
 
                             if (!uiState.isSearchFocused) {
-                                Spacer(modifier = Modifier.height(70.dp))
+                                Spacer(modifier = Modifier.height(80.dp))
                             }
                         }
 
                         if (!uiState.isSearchFocused) {
-                            Banner(modifier = Modifier.align(Alignment.BottomCenter))
+                            Banner(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .offset(y = 70.dp)
+                            )
                         }
+                    }
+
+                    if (!uiState.isSearchFocused) {
+                        Spacer(modifier = Modifier.height(70.dp))
                     }
                 }
 

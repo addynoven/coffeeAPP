@@ -207,7 +207,10 @@ fun HomeScreen(
                                 onSearchClick = onSearchClick,
                                 onSearchFocusChange = onSearchFocusChange,
                                 selectedLocationText = displayLocationText,
-                                onLocationClick = { showAddressSheet = true }
+                                userPoints = 500,
+                                cartItemCount = 0,
+                                onLocationClick = { showAddressSheet = true },
+                                onCartClick = onCartClick
                             )
                             
                             if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {
@@ -225,13 +228,21 @@ fun HomeScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    if (!uiState.isSearchFocused) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        com.example.testing1.screens.homescreen.components.RewardsPunchCardBanner(
+                            purchasedCount = 3,
+                            targetCount = 6
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                     CategoryRow(
                         categories = uiState.categories,
                         selectedCategory = uiState.selectedCategory,
                         onCategorySelected = onCategorySelected
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 if (uiState.isLoading) {

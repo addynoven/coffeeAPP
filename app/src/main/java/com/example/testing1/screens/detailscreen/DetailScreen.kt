@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,10 +27,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -167,7 +172,7 @@ fun DetailScreen(
             }
         },
         bottomBar = {
-            BottomBuyBar(price = item.price, onAddToCartClick = {
+            BottomBuyBar(price = item.price, onAddToCartClick = { qty ->
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 onAddToCart()
             })
@@ -179,6 +184,7 @@ fun DetailScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             SubcomposeAsyncImage(
                 model = cloudinaryHelper.optimize(item.imageUrl, width = 600),
@@ -280,6 +286,80 @@ fun DetailScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // BK Style Customizer Section ("Customize Your Order")
+            Text(
+                text = "Customize Your Coffee",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            val addOnCounts = remember { mutableStateListOf<Int>(0, 0, 0, 0) }
+            val addOnLabels = listOf(
+                "Extra Espresso Shot (+$0.50)",
+                "Whipped Cream & Vanilla (+$0.30)",
+                "Oat / Almond Milk (+$0.40)",
+                "Caramel Drizzle (+$0.30)"
+            )
+
+            addOnLabels.forEachIndexed { index, label ->
+                val count = addOnCounts[index]
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = label,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    ) {
+                        IconButton(
+                            onClick = { if (count > 0) addOnCounts[index] = count - 1 },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Remove,
+                                contentDescription = "Decrease",
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                        Text(
+                            text = "$count",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp)
+                        )
+                        IconButton(
+                            onClick = { addOnCounts[index] = count + 1 },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Add,
+                                contentDescription = "Increase",
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

@@ -371,36 +371,80 @@ fun CartScreen(
                     )
 
                     if (uiState.availableDiscounts.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            "Or select from available:",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            "AVAILABLE COUPONS",
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            letterSpacing = 0.5.sp
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            item {
-                                DiscountChip(
-                                    discount = null,
-                                    isSelected = uiState.selectedDiscount == null,
-                                    onClick = { onDiscountSelected(null) }
-                                )
-                            }
-                            items(uiState.availableDiscounts) { discount ->
-                                DiscountChip(
-                                    discount = discount,
-                                    isSelected = uiState.selectedDiscount?.code == discount.code,
-                                    onClick = { onDiscountSelected(discount) }
-                                )
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        uiState.availableDiscounts.forEach { discount ->
+                            val isApplied = uiState.selectedDiscount?.code == discount.code
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = Color(0xFF2E7D32)
+                                        ) {
+                                            Text(
+                                                text = discount.code,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                color = Color.White,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Text(
+                                            text = discount.description ?: "Special Coffee Discount",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            if (isApplied) {
+                                                onDiscountSelected(null)
+                                            } else {
+                                                onDiscountSelected(discount)
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isApplied) Color(0xFF4CAF50) else Color(0xFFE65100),
+                                            contentColor = Color.White
+                                        ),
+                                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = if (isApplied) "APPLIED ✓" else "APPLY",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
                         }
-                    } else {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Tip: Try code 'COFFEE10' for 10% off",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-                        )
                     }
                 }
 

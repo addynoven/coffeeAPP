@@ -2,39 +2,18 @@ package com.example.testing1.screens.detailscreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,8 +24,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -59,29 +38,6 @@ import com.example.testing1.util.LocalCloudinaryHelper
 import com.example.testing1.util.sharedElementExt
 import com.example.testing1.util.UiEvent
 import com.example.testing1.util.shimmerLoading
-
-@Preview(showBackground = true)
-@Composable
-fun DetailScreenPreview() {
-    DetailScreen(
-        uiState = DetailUiState(
-            coffeeItem = com.example.testing1.data.local.coffee.CoffeeEntity(
-                id = "1",
-                name = "Cappuccino",
-                description = "Rich and creamy",
-                category = com.example.testing1.models.CoffeeCategory.Cappuccino,
-                price = 4.5,
-                imageUrl = "",
-                isFavorite = true
-            ),
-            isLoading = false
-        ),
-        onBackClick = {},
-        onSizeSelected = {},
-        onToggleFavorite = {},
-        onAddToCart = {}
-    )
-}
 
 @Composable
 fun DetailRoute(
@@ -131,6 +87,9 @@ fun DetailScreen(
     val language = LocalConfiguration.current.locales[0].language
     val haptic = LocalHapticFeedback.current
 
+    var selectedCombo by remember { mutableStateOf<String?>(null) }
+    var selectedAddOn by remember { mutableStateOf<String?>(null) }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -138,7 +97,7 @@ fun DetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -149,30 +108,32 @@ fun DetailScreen(
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
-                Text(
-                    text = stringResource(R.string.detail_title),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
                 
+                Text(
+                    text = "DETAIL",
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    letterSpacing = 1.sp
+                )
+
                 AnimatedFavoriteButton(
                     isFavorite = item.isFavorite,
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onToggleFavorite()
                     },
-                    modifier = Modifier
-                        .background(
-                            Color.Black.copy(alpha = 0.2f),
-                            CircleShape
-                        ),
-                    size = 40
+                    modifier = Modifier.background(
+                        Color.Black.copy(alpha = 0.2f),
+                        CircleShape
+                    ),
+                    size = 38
                 )
             }
         },
         bottomBar = {
-            BottomBuyBar(price = item.price, onAddToCartClick = { qty ->
+            BottomBuyBar(price = item.price, onAddToCartClick = {
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 onAddToCart()
             })
@@ -182,10 +143,11 @@ fun DetailScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
+            // Product Hero Image Card
             SubcomposeAsyncImage(
                 model = cloudinaryHelper.optimize(item.imageUrl, width = 600),
                 contentDescription = item.name,
@@ -214,65 +176,43 @@ fun DetailScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .height(210.dp)
+                    .clip(RoundedCornerShape(18.dp))
                     .sharedElementExt("coffee-img-${item.id}"),
                 contentScale = ContentScale.Crop
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
+            // Product Name & Description
             Text(
-                text = item.getLocalizedName(language),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                text = item.getLocalizedName(language).uppercase(),
+                fontFamily = FontFamily.Serif,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.ice_hot_label),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.default_bean),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            Spacer(modifier = Modifier.height(4.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.description_title),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "${item.getLocalizedDescription(language)}. ${stringResource(R.string.description_footer)}",
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 20.sp
+                lineHeight = 18.sp
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
+            // Size Selector Section
             Text(
-                text = stringResource(R.string.size_title),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                text = "SELECT SIZE",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onBackground,
+                letterSpacing = 1.sp
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -288,78 +228,134 @@ fun DetailScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // BK Style Customizer Section ("Customize Your Order")
+            // Burger King Style "MAKE IT A COMBO" Section (Image 4)
             Text(
-                text = "Customize Your Coffee",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                text = "MAKE IT A COMBO",
+                fontFamily = FontFamily.Serif,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onBackground,
+                letterSpacing = 0.5.sp
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            val addOnCounts = remember { mutableStateListOf<Int>(0, 0, 0, 0) }
-            val addOnLabels = listOf(
-                "Extra Espresso Shot (+$0.50)",
-                "Whipped Cream & Vanilla (+$0.30)",
-                "Oat / Almond Milk (+$0.40)",
-                "Caramel Drizzle (+$0.30)"
+            val combos = listOf(
+                "Fresh Butter Croissant" to "+ $2.50",
+                "Chocolate Muffin" to "+ $1.80",
+                "Blueberry Scone" to "+ $2.10"
             )
 
-            addOnLabels.forEachIndexed { index, label ->
-                val count = addOnCounts[index]
-                Row(
+            combos.forEach { (name, price) ->
+                val isSelected = selectedCombo == name
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(vertical = 4.dp)
+                        .clickable { selectedCombo = if (isSelected) null else name },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) Color(0xFFFFF3E0) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    ),
+                    border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFE65100)) else null
                 ) {
-                    Text(
-                        text = label,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = { if (count > 0) addOnCounts[index] = count - 1 },
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.Remove,
-                                contentDescription = "Decrease",
-                                modifier = Modifier.size(14.dp)
-                            )
-                        }
                         Text(
-                            text = "$count",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp)
+                            text = name,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        IconButton(
-                            onClick = { addOnCounts[index] = count + 1 },
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.Add,
-                                contentDescription = "Increase",
-                                modifier = Modifier.size(14.dp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = price,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFE65100)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = { selectedCombo = if (isSelected) null else name },
+                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFE65100))
                             )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Burger King Style "ADD-ONS" Section (Image 4)
+            Text(
+                text = "ADD-ONS",
+                fontFamily = FontFamily.Serif,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onBackground,
+                letterSpacing = 0.5.sp
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            val addOns = listOf(
+                "Extra Espresso Shot" to "+ $0.80",
+                "Oat / Almond Milk" to "+ $0.60",
+                "French Vanilla Syrup" to "+ $0.50"
+            )
+
+            addOns.forEach { (name, price) ->
+                val isSelected = selectedAddOn == name
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clickable { selectedAddOn = if (isSelected) null else name },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) Color(0xFFFFF3E0) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    ),
+                    border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFE65100)) else null
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = name,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = price,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFE65100)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Checkbox(
+                                checked = isSelected,
+                                onCheckedChange = { selectedAddOn = if (isSelected) null else name },
+                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFE65100))
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
         }
     }
 }

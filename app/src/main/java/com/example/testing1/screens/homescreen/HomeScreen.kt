@@ -1,63 +1,44 @@
 package com.example.testing1.screens.homescreen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocalOffer
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.testing1.R
 import com.example.testing1.data.local.coffee.CoffeeEntity
-import com.example.testing1.data.local.search.SearchHistoryEntity
-import com.example.testing1.screens.homescreen.components.Banner
-import com.example.testing1.screens.homescreen.components.CategoryRow
-import com.example.testing1.screens.homescreen.components.CoffeeGrid
-import com.example.testing1.screens.homescreen.components.HeaderSection
+import com.example.testing1.models.CoffeeCategory
+import com.example.testing1.screens.address.AddressSelectorBottomSheet
+import com.example.testing1.screens.address.MapLocationPickerModal
+import com.example.testing1.screens.homescreen.components.*
+import com.example.testing1.screens.ui_components.EmptyStateContent
 import com.example.testing1.screens.ui_components.MyBottomBar
 import com.example.testing1.util.UiEvent
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen(
-        uiState = HomeUiState(),
-        onSearchTextChange = {},
-        onClearSearch = {},
-        onSearchClick = {},
-        onCategorySelected = {},
-        onToggleFavorite = {},
-        onRefresh = {},
-        onItemClick = {},
-        onCartClick = {},
-        onFavoriteClick = {},
-        onProfileClick = {},
-        onSearchFocusChange = {},
-        onRecentSearchClick = {}
-    )
-}
 
 @Composable
 fun HomeRoute(
@@ -84,19 +65,19 @@ fun HomeRoute(
     HomeScreen(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
-        onSearchTextChange = viewModel::onSearchTextChange,
-        onClearSearch = viewModel::onClearSearch,
-        onSearchClick = viewModel::onSearchClick,
-        onCategorySelected = viewModel::onCategorySelected,
-        onToggleFavorite = viewModel::toggleFavorite,
-        onRefresh = viewModel::onRefresh,
         onItemClick = onItemClick,
         onCartClick = onCartClick,
         onFavoriteClick = onFavoriteClick,
         onProfileClick = onProfileClick,
+        onSearchTextChange = viewModel::onSearchTextChange,
+        onClearSearch = viewModel::onClearSearch,
+        onSearchClick = viewModel::onSearchClick,
         onSearchFocusChange = viewModel::onSearchFocusChange,
         onRecentSearchClick = viewModel::onRecentSearchClick,
-        onAddressSelected = viewModel::onAddressSelected,
+        onCategorySelected = viewModel::onCategorySelected,
+        onToggleFavorite = viewModel::toggleFavorite,
+        onRefresh = { viewModel.onRefresh() },
+        onSelectAddress = viewModel::onAddressSelected,
         onSaveMapAddress = viewModel::saveAddressFromMap
     )
 }
@@ -106,34 +87,36 @@ fun HomeRoute(
 fun HomeScreen(
     uiState: HomeUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSearchTextChange: (String) -> Unit,
-    onClearSearch: () -> Unit,
-    onSearchClick: () -> Unit,
-    onCategorySelected: (com.example.testing1.models.CoffeeCategory) -> Unit,
-    onToggleFavorite: (CoffeeEntity) -> Unit,
-    onRefresh: () -> Unit,
     onItemClick: (CoffeeEntity) -> Unit,
     onCartClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onProfileClick: () -> Unit,
+    onSearchTextChange: (String) -> Unit,
+    onClearSearch: () -> Unit,
+    onSearchClick: () -> Unit,
     onSearchFocusChange: (Boolean) -> Unit,
     onRecentSearchClick: (String) -> Unit,
-    onAddressSelected: (com.example.testing1.data.local.address.AddressEntity) -> Unit = {},
-    onSaveMapAddress: (tag: String, fullAddress: String, lat: Double, lng: Double) -> Unit = { _, _, _, _ -> }
+    onCategorySelected: (CoffeeCategory) -> Unit,
+    onToggleFavorite: (CoffeeEntity) -> Unit,
+    onRefresh: () -> Unit,
+    onSelectAddress: (com.example.testing1.data.local.address.AddressEntity) -> Unit,
+    onSaveMapAddress: (tag: String, fullAddress: String, lat: Double, lng: Double) -> Unit
 ) {
-    val haptic = LocalHapticFeedback.current
     var showAddressSheet by remember { mutableStateOf(false) }
     var showMapPicker by remember { mutableStateOf(false) }
+    var selectedTemperatureFilter by remember { mutableStateOf<String?>(null) }
 
-    val displayLocationText = uiState.selectedAddress?.let {
-        "${it.tag} • ${it.fullAddress}"
-    } ?: stringResource(R.string.default_location)
+    val displayLocationText = uiState.selectedAddress?.let { "${it.tag}: ${it.fullAddress}" }
+        ?: stringResource(R.string.default_location)
 
     if (showAddressSheet) {
-        com.example.testing1.screens.address.AddressSelectorBottomSheet(
+        AddressSelectorBottomSheet(
             addresses = uiState.addresses,
             selectedAddressId = uiState.selectedAddress?.addressId,
-            onAddressSelected = onAddressSelected,
+            onAddressSelected = { address ->
+                showAddressSheet = false
+                onSelectAddress(address)
+            },
             onOpenMapPicker = {
                 showAddressSheet = false
                 showMapPicker = true
@@ -143,9 +126,10 @@ fun HomeScreen(
     }
 
     if (showMapPicker) {
-        com.example.testing1.screens.address.MapLocationPickerModal(
+        MapLocationPickerModal(
             initialLatitude = uiState.selectedAddress?.latitude,
             initialLongitude = uiState.selectedAddress?.longitude,
+            initialTag = uiState.selectedAddress?.tag ?: "Home",
             onDismiss = { showMapPicker = false },
             onAddressSaved = { tag, fullAddress, lat, lng ->
                 showMapPicker = false
@@ -179,21 +163,22 @@ fun HomeScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
+                // 1. Top Header & Promo Banner Container
                 item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(280.dp)
+                            .height(310.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(240.dp)
+                                .height(250.dp)
                                 .background(
                                     brush = Brush.linearGradient(
                                         colors = listOf(
-                                            Color(0xFF131313),
-                                            Color(0xFF313131)
+                                            Color(0xFF1F120B),
+                                            Color(0xFF2C1A14)
                                         )
                                     )
                                 )
@@ -207,18 +192,8 @@ fun HomeScreen(
                                 onSearchClick = onSearchClick,
                                 onSearchFocusChange = onSearchFocusChange,
                                 selectedLocationText = displayLocationText,
-                                userPoints = 500,
-                                cartItemCount = 0,
-                                onLocationClick = { showAddressSheet = true },
-                                onCartClick = onCartClick
+                                onLocationClick = { showAddressSheet = true }
                             )
-                            
-                            if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {
-                                RecentSearchesSection(
-                                    searches = uiState.recentSearches,
-                                    onSearchClick = onRecentSearchClick
-                                )
-                            }
                         }
 
                         if (!uiState.isSearchFocused) {
@@ -227,24 +202,78 @@ fun HomeScreen(
                     }
                 }
 
+                // 2. Burger King Style "OUR MENU" Category Section
                 item {
-                    if (!uiState.isSearchFocused) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        com.example.testing1.screens.homescreen.components.RewardsPunchCardBanner(
-                            purchasedCount = 3,
-                            targetCount = 6
-                        )
-                    }
-
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "OUR MENU",
+                        fontFamily = FontFamily.Serif,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     CategoryRow(
                         categories = uiState.categories,
                         selectedCategory = uiState.selectedCategory,
                         onCategorySelected = onCategorySelected
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // 3. Burger King Style Hot / Cold Preference Filters (Image 2)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        FilterChip(
+                            selected = selectedTemperatureFilter == "HOT",
+                            onClick = {
+                                selectedTemperatureFilter = if (selectedTemperatureFilter == "HOT") null else "HOT"
+                            },
+                            label = { Text("☕ HOT", fontWeight = FontWeight.Bold, fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFFE65100),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+
+                        FilterChip(
+                            selected = selectedTemperatureFilter == "COLD",
+                            onClick = {
+                                selectedTemperatureFilter = if (selectedTemperatureFilter == "COLD") null else "COLD"
+                            },
+                            label = { Text("🧊 COLD", fontWeight = FontWeight.Bold, fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFF0288D1),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+
+                        FilterChip(
+                            selected = selectedTemperatureFilter == "VEGAN",
+                            onClick = {
+                                selectedTemperatureFilter = if (selectedTemperatureFilter == "VEGAN") null else "VEGAN"
+                            },
+                            label = { Text("🌿 VEGAN", fontWeight = FontWeight.Bold, fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFF388E3C),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
 
+                // 4. Coffee Grid Section
                 if (uiState.isLoading) {
                     item {
                         CoffeeGrid(
@@ -259,95 +288,152 @@ fun HomeScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(32.dp),
+                                .padding(vertical = 48.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "No coffee found for this category",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            EmptyStateContent(
+                                icon = Icons.Default.SearchOff,
+                                title = "No coffee found",
+                                description = "Try searching for a different coffee name or filter."
                             )
                         }
                     }
                 } else {
-                    val chunkedItems = uiState.coffeeItems.chunked(2)
-                    items(chunkedItems) { rowItems ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            rowItems.forEach { item ->
-                                com.example.testing1.screens.homescreen.components.CoffeeCard(
-                                    item = item,
-                                    modifier = Modifier.weight(1f),
-                                    onClick = { onItemClick(item) },
-                                    onToggleFavorite = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onToggleFavorite(item)
+                    item {
+                        CoffeeGrid(
+                            items = uiState.coffeeItems,
+                            isLoading = false,
+                            onItemClick = onItemClick,
+                            onToggleFavorite = onToggleFavorite
+                        )
+                    }
+                }
+
+                // 5. Burger King Style "COFFEE DEALS OF THE DAY" Promo Section (Image 1 & Image 3)
+                item {
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    Text(
+                        text = "COFFEE DEALS OF THE DAY",
+                        fontFamily = FontFamily.Serif,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        item {
+                            ElevatedCard(
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.elevatedCardColors(containerColor = Color(0xFFFFF3E0)),
+                                modifier = Modifier
+                                    .width(280.dp)
+                                    .height(110.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Free Delivery",
+                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 16.sp,
+                                            color = Color(0xFFE65100)
+                                        )
+                                        Text(
+                                            text = "On all orders above $15",
+                                            fontSize = 11.sp,
+                                            color = Color(0xFF5D4037)
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(12.dp),
+                                            color = Color(0xFFE65100)
+                                        ) {
+                                            Text(
+                                                text = "CODE: FREEFEES",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                            )
+                                        }
                                     }
-                                )
+                                    Icon(
+                                        imageVector = Icons.Default.LocalOffer,
+                                        contentDescription = null,
+                                        tint = Color(0xFFE65100),
+                                        modifier = Modifier.size(44.dp)
+                                    )
+                                }
                             }
-                            if (rowItems.size < 2) {
-                                Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        item {
+                            ElevatedCard(
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.elevatedCardColors(containerColor = Color(0xFFEFEBE9)),
+                                modifier = Modifier
+                                    .width(280.dp)
+                                    .height(110.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Buy 1 Get 1 Free",
+                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 16.sp,
+                                            color = Color(0xFF2C1A14)
+                                        )
+                                        Text(
+                                            text = "Applicable on Cappuccinos",
+                                            fontSize = 11.sp,
+                                            color = Color(0xFF6D4C41)
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(12.dp),
+                                            color = Color(0xFF2C1A14)
+                                        ) {
+                                            Text(
+                                                text = "CODE: BOGO",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                            )
+                                        }
+                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.LocalOffer,
+                                        contentDescription = null,
+                                        tint = Color(0xFF2C1A14),
+                                        modifier = Modifier.size(44.dp)
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                item {
                     Spacer(modifier = Modifier.height(32.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun RecentSearchesSection(
-    searches: List<SearchHistoryEntity>,
-    onSearchClick: (String) -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF2A2A2A)),
-        shape = RoundedCornerShape(0.dp, 0.dp, 12.dp, 12.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = stringResource(R.string.recent_searches_title),
-                color = Color.Gray,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            searches.forEach { search ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSearchClick(search.query) }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.History,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(text = search.query, color = Color.White, fontSize = 14.sp)
-                    }
-                    Text(
-                        text = stringResource(R.string.search_results_count, search.resultCount),
-                        color = Color.Gray,
-                        fontSize = 11.sp
-                    )
                 }
             }
         }

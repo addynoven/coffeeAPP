@@ -2,26 +2,12 @@ package com.example.testing1.screens.homescreen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,9 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
@@ -57,12 +42,13 @@ fun CoffeeCard(
         modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            // Image Container with Signature Tag Badge + Favorite Icon
             Box {
                 SubcomposeAsyncImage(
-                    model = cloudinaryHelper.optimize(item.imageUrl, width = 300),
+                    model = cloudinaryHelper.optimize(item.imageUrl, width = 350),
                     contentDescription = item.name,
                     contentScale = ContentScale.Crop,
                     loading = {
@@ -77,7 +63,9 @@ fun CoffeeCard(
                         Icon(
                             painter = painterResource(R.drawable.default_bean),
                             contentDescription = null,
-                            modifier = Modifier.align(Alignment.Center).size(24.dp),
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         )
                     },
@@ -87,32 +75,67 @@ fun CoffeeCard(
                         .clip(RoundedCornerShape(12.dp))
                         .sharedElementExt("coffee-img-${item.id}")
                 )
-                
+
+                // Top Left Signature Badge (Burger King Style)
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(6.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color(0xFF2C1A14).copy(alpha = 0.85f)
+                ) {
+                    Text(
+                        text = "FRESH BREW",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFFFFA726),
+                        letterSpacing = 0.5.sp,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                    )
+                }
+
+                // Top Right Favorite Button
                 AnimatedFavoriteButton(
                     isFavorite = item.isFavorite,
                     onClick = onToggleFavorite,
                     modifier = Modifier
-                        .align(Alignment.TopStart)
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
                         .background(
-                            Color.Black.copy(alpha = 0.2f),
+                            Color.Black.copy(alpha = 0.3f),
                             CircleShape
                         ),
-                    size = 32
+                    size = 30
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Bold Uppercase Product Name (BK Typography Style)
             Text(
-                text = item.getLocalizedName(language),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface
+                text = item.getLocalizedName(language).uppercase(),
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Description Subtitle
             Text(
                 text = item.getLocalizedDescription(language),
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 14.sp
             )
-            Spacer(modifier = Modifier.height(12.dp))
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Price & Burger King Style `ADD +` Outlined Action Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -120,41 +143,38 @@ fun CoffeeCard(
             ) {
                 Text(
                     text = "$ ${item.price}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 17.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
+
+                // Outlined ADD + Pill Button (BK Style Image 2)
+                Surface(
+                    onClick = onClick,
+                    shape = RoundedCornerShape(20.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFE65100)),
+                    color = Color.Transparent
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_to_cart_desc),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "ADD",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFE65100)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add to Cart",
+                            tint = Color(0xFFE65100),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun CoffeeCardPreview() {
-    CoffeeCard(
-        item = CoffeeEntity(
-            id = "0",
-            name = "Espresso",
-            description = "Strong and rich",
-            price = 3.8,
-            category = com.example.testing1.models.CoffeeCategory.Espresso,
-            imageUrl = ""
-        ),
-        onClick = {},
-        onToggleFavorite = {}
-    )
 }

@@ -46,6 +46,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.value.password
                 )
                 settingsRepository.setHasSeenWelcome(true)
+                _uiState.value = _uiState.value.copy(isLoading = false)
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "login() failed: ${e.message}")
                 val errorMessage =
@@ -82,6 +83,7 @@ class AuthViewModel @Inject constructor(
                 // Check if we got a session automatically
                 if (authRepository.sessionStatus.value is SessionStatus.Authenticated) {
                     settingsRepository.setHasSeenWelcome(true)
+                    _uiState.value = _uiState.value.copy(isLoading = false)
                 } else {
                     // Confirmation required
                     _uiState.value = _uiState.value.copy(
@@ -121,6 +123,7 @@ class AuthViewModel @Inject constructor(
                 )
                 Log.d("AuthViewModel", "authRepository.signInWithIdToken() finished")
                 settingsRepository.setHasSeenWelcome(true)
+                _uiState.value = _uiState.value.copy(isLoading = false)
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Google Sign-In failed in repository: ${e.message}", e)
                 _uiState.value =

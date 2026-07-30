@@ -285,7 +285,17 @@ class CoffeeRepository @Inject constructor(
     }
 
     suspend fun setAsDefaultAddress(addressId: String) {
-        // Implementation
+        val userId = currentUserId
+        powerSyncDatabase.writeTransaction { transaction ->
+            transaction.execute(
+                "UPDATE addresses SET is_default = 0 WHERE user_id = ?",
+                listOf(userId)
+            )
+            transaction.execute(
+                "UPDATE addresses SET is_default = 1 WHERE user_id = ? AND id = ?",
+                listOf(userId, addressId)
+            )
+        }
     }
 
     // Order Operations

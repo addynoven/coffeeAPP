@@ -40,6 +40,7 @@ import com.example.testing1.R
 import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.screens.ui_components.AnimatedFavoriteButton
 import com.example.testing1.util.LocalCloudinaryHelper
+import com.example.testing1.util.sharedElementExt
 import com.example.testing1.util.shimmerLoading
 
 @Composable
@@ -84,6 +85,7 @@ fun CoffeeCard(
                         .fillMaxWidth()
                         .aspectRatio(1.2f)
                         .clip(RoundedCornerShape(12.dp))
+                        .sharedElementExt("coffee-img-${item.id}")
                 )
                 
                 AnimatedFavoriteButton(

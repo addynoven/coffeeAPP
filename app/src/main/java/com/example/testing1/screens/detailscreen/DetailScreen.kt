@@ -51,6 +51,7 @@ import com.example.testing1.screens.detailscreen.components.BottomBuyBar
 import com.example.testing1.screens.detailscreen.components.SizeOption
 import com.example.testing1.screens.ui_components.AnimatedFavoriteButton
 import com.example.testing1.util.LocalCloudinaryHelper
+import com.example.testing1.util.sharedElementExt
 import com.example.testing1.util.UiEvent
 import com.example.testing1.util.shimmerLoading
 
@@ -208,7 +209,8 @@ fun DetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .clip(RoundedCornerShape(16.dp)),
+                    .clip(RoundedCornerShape(16.dp))
+                    .sharedElementExt("coffee-img-${item.id}"),
                 contentScale = ContentScale.Crop
             )
 

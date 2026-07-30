@@ -25,11 +25,12 @@ class DetailViewModel @Inject constructor(
 
     fun loadCoffee(coffeeId: String) {
         viewModelScope.launch {
-            val item = repository.getCoffeeById(coffeeId)
-            _uiState.value = _uiState.value.copy(
-                coffeeItem = item,
-                isLoading = false
-            )
+            repository.getCoffeeById(coffeeId).collect { item ->
+                _uiState.value = _uiState.value.copy(
+                    coffeeItem = item,
+                    isLoading = false
+                )
+            }
         }
     }
 

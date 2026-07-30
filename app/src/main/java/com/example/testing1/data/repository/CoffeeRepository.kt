@@ -6,6 +6,7 @@ import com.example.testing1.data.local.cart.CartEntity
 import com.example.testing1.data.local.cart.CartItemWithCoffee
 import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.data.local.order.OrderEntity
+import com.example.testing1.data.local.order.OrderItemEntity
 import com.example.testing1.data.local.order.OrderWithItems
 import com.example.testing1.data.local.search.SearchHistoryEntity
 import com.example.testing1.data.local.user.UserEntity
@@ -14,6 +15,7 @@ import com.example.testing1.data.remote.model.PlaceOrderParams
 import com.example.testing1.data.remote.model.RemoteOrder
 import com.example.testing1.models.CoffeeCategory
 import com.example.testing1.models.OrderStatus
+import com.example.testing1.util.PricingEngine
 import com.powersync.PowerSyncDatabase
 import com.powersync.db.SqlCursor
 import io.github.jan.supabase.SupabaseClient
@@ -24,6 +26,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
@@ -43,121 +46,114 @@ class CoffeeRepository @Inject constructor(
     private fun mapCoffee(cursor: SqlCursor): CoffeeEntity {
         val cols = cursor.columnNames
         return try {
+            val nameVal = cols["name"]?.let { cursor.getString(it) } ?: ""
+            val descVal = cols["description"]?.let { cursor.getString(it) } ?: ""
+            val priceVal = cols["price"]?.let { cursor.getDouble(it) } ?: 0.0
+
             CoffeeEntity(
-                id = cursor.getString(cols["id"]!!)!!,
-                name = cursor.getString(cols["name"]!!)!!,
-                description = cursor.getString(cols["description"]!!)!!,
-                category = CoffeeCategory.fromString(cursor.getString(cols["category"]!!)!!),
-                price = cursor.getDouble(cols["price"]!!)!!,
-                imageUrl = cursor.getString(cols["image_url"]!!)!!,
-                isFavorite = cursor.getBoolean(cols["is_favorite"]!!) ?: false,
-                nameJa = cursor.getString(cols["name_ja"]!!),
-                descriptionJa = cursor.getString(cols["description_ja"]!!),
-                nameDe = cursor.getString(cols["name_de"]!!),
-                descriptionDe = cursor.getString(cols["description_de"]!!),
-                nameRu = cursor.getString(cols["name_ru"]!!),
-                descriptionRu = cursor.getString(cols["description_ru"]!!),
-                namePt = cursor.getString(cols["name_pt"]!!),
-                descriptionPt = cursor.getString(cols["description_pt"]!!),
-                nameFr = cursor.getString(cols["name_fr"]!!),
-                descriptionFr = cursor.getString(cols["description_fr"]!!),
-                nameAr = cursor.getString(cols["name_ar"]!!),
-                descriptionAr = cursor.getString(cols["description_ar"]!!),
-                nameEs = cursor.getString(cols["name_es"]!!),
-                descriptionEs = cursor.getString(cols["description_es"]!!),
-                nameZh = cursor.getString(cols["name_zh"]!!),
-                descriptionZh = cursor.getString(cols["description_zh"]!!),
-                nameIt = cursor.getString(cols["name_it"]!!),
-                descriptionIt = cursor.getString(cols["description_it"]!!)
+                id = cols["id"]?.let { cursor.getString(it) } ?: "",
+                name = nameVal,
+                description = descVal,
+                category = CoffeeCategory.fromString(cols["category"]?.let { cursor.getString(it) } ?: ""),
+                price = priceVal,
+                imageUrl = cols["image_url"]?.let { cursor.getString(it) } ?: ""
             )
         } catch (e: Exception) {
-            Log.e("CoffeeRepository", "Error mapping coffee: ${e.message}", e)
-            throw e
+            Log.e("CoffeeRepository", "Error mapping coffee row", e)
+            CoffeeEntity("", "Error Loading", "", CoffeeCategory.AllCoffee, 0.0, "")
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun getAllCoffee(): Flow<List<CoffeeEntity>> =
-        authRepository.currentUserIdFlow.flatMapLatest { userId ->
-            Log.d("CoffeeRepository", "getAllCoffee() flatMap triggered for User: $userId")
-            powerSyncDatabase.watch(
-                "SELECT c.*, f.coffee_id IS NOT NULL as is_favorite FROM coffee c LEFT JOIN favorites f ON c.id = f.coffee_id AND f.user_id = ?",
-                listOf(userId)
-            ) {
-                Log.d("CoffeeRepository", "SQL Watch Triggered - Mapping Row...")
-                val entity = mapCoffee(it)
-                Log.d(
-                    "CoffeeRepository",
-                    "Fetched coffee: ${entity.name} (${entity.id})"
-                )
-                entity
-            }
-        }.map {
-            Log.d("CoffeeRepository", "Repository emitting ${it.size} coffee items to UI")
-            it
-        }
-
-    suspend fun getCoffeeById(id: String): CoffeeEntity? =
-        powerSyncDatabase.getOptional(
-            "SELECT c.*, f.coffee_id IS NOT NULL as is_favorite FROM coffee c LEFT JOIN favorites f ON c.id = f.coffee_id AND f.user_id = ? WHERE c.id = ?",
-            listOf(currentUserId, id)
+    // Coffee Operations
+    fun getCoffeeList(): Flow<List<CoffeeEntity>> =
+        powerSyncDatabase.watch(
+            "SELECT * FROM coffee",
+            emptyList()
         ) { mapCoffee(it) }
 
-    suspend fun insertAll(coffees: List<CoffeeEntity>) {
-        // Redundant with PowerSync
+    fun getAllCoffee(): Flow<List<CoffeeEntity>> = getCoffeeList()
+
+    suspend fun refreshCoffee() {
+        // PowerSync automatically handles offline/online syncing
     }
 
-    suspend fun toggleFavorite(id: String, isFavorite: Boolean) {
-        if (isFavorite) {
+    fun getCoffeeById(id: String): Flow<CoffeeEntity?> =
+        powerSyncDatabase.watch(
+            "SELECT * FROM coffee WHERE id = ?",
+            listOf(id)
+        ) { mapCoffee(it) }.map { it.firstOrNull() }
+
+    // Favorites Operations
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getFavoriteCoffees(): Flow<List<CoffeeEntity>> =
+        authRepository.currentUserIdFlow.flatMapLatest { userId ->
+            powerSyncDatabase.watch(
+                """
+                SELECT c.* FROM coffee c
+                INNER JOIN favorites f ON c.id = f.coffee_id
+                WHERE f.user_id = ?
+                """.trimIndent(),
+                listOf(userId)
+            ) { mapCoffee(it) }
+        }
+
+    fun getFavoriteCoffee(): Flow<List<CoffeeEntity>> = getFavoriteCoffees()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun isFavorite(coffeeId: String): Flow<Boolean> =
+        authRepository.currentUserIdFlow.flatMapLatest { userId ->
+            powerSyncDatabase.watch(
+                "SELECT 1 FROM favorites WHERE user_id = ? AND coffee_id = ?",
+                listOf(userId, coffeeId)
+            ) { true }.map { it.isNotEmpty() }
+        }
+
+    suspend fun toggleFavorite(coffeeId: String, isFav: Boolean) {
+        if (isFav) {
             powerSyncDatabase.execute(
-                "INSERT OR REPLACE INTO favorites (id, user_id, coffee_id) VALUES (?, ?, ?)",
-                listOf(
-                    UUID.randomUUID().toString(),
-                    currentUserId,
-                    id
-                )
+                "DELETE FROM favorites WHERE user_id = ? AND coffee_id = ?",
+                listOf(currentUserId, coffeeId)
             )
         } else {
             powerSyncDatabase.execute(
-                "DELETE FROM favorites WHERE user_id = ? AND coffee_id = ?",
-                listOf(currentUserId, id)
+                "INSERT INTO favorites (id, user_id, coffee_id) VALUES (?, ?, ?)",
+                listOf(UUID.randomUUID().toString(), currentUserId, coffeeId)
             )
         }
     }
 
-    fun getFavoriteCoffee(): Flow<List<CoffeeEntity>> =
-        powerSyncDatabase.watch(
-            "SELECT c.*, 1 as is_favorite FROM coffee c JOIN favorites f ON c.id = f.coffee_id WHERE f.user_id = ?",
-            listOf(currentUserId)
-        ) { mapCoffee(it) }
-
-    suspend fun refreshCoffee() {
-        discountRepository.refreshDiscounts()
-    }
-
     // Cart Operations
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getCartItems(): Flow<List<CartItemWithCoffee>> =
-        powerSyncDatabase.watch(
-            "SELECT ct.*, c.name, c.price, c.image_url FROM cart ct JOIN coffee c ON ct.coffee_id = c.id WHERE ct.user_id = ?",
-            listOf(currentUserId)
-        ) { cursor ->
-            val cols = cursor.columnNames
-            val cartItem = CartEntity(
-                cartId = cursor.getString(cols["id"]!!)!!,
-                userId = cursor.getString(cols["user_id"]!!)!!,
-                coffeeId = cursor.getString(cols["coffee_id"]!!)!!,
-                quantity = cursor.getLong(cols["quantity"]!!)!!.toInt(),
-                size = cursor.getString(cols["size"]!!)!!
-            )
-            val coffee = CoffeeEntity(
-                id = cartItem.coffeeId,
-                name = cursor.getString(cols["name"]!!)!!,
-                price = cursor.getDouble(cols["price"]!!)!!,
-                imageUrl = cursor.getString(cols["image_url"]!!)!!,
-                description = "",
-                category = CoffeeCategory.Espresso // Partial object for UI
-            )
-            CartItemWithCoffee(cartItem, coffee)
+        authRepository.currentUserIdFlow.flatMapLatest { userId ->
+            powerSyncDatabase.watch(
+                """
+                SELECT cart.id as cart_id, cart.user_id, cart.coffee_id, cart.quantity, cart.size,
+                       c.name, c.price, c.image_url
+                FROM cart
+                INNER JOIN coffee c ON cart.coffee_id = c.id
+                WHERE cart.user_id = ?
+                """.trimIndent(),
+                listOf(userId)
+            ) { cursor ->
+                val cols = cursor.columnNames
+                val cartItem = CartEntity(
+                    cartId = cursor.getString(cols["cart_id"]!!)!!,
+                    userId = cursor.getString(cols["user_id"]!!)!!,
+                    coffeeId = cursor.getString(cols["coffee_id"]!!)!!,
+                    quantity = cursor.getLong(cols["quantity"]!!)!!.toInt(),
+                    size = cursor.getString(cols["size"]!!)!!
+                )
+                val coffee = CoffeeEntity(
+                    id = cartItem.coffeeId,
+                    name = cursor.getString(cols["name"]!!)!!,
+                    price = cursor.getDouble(cols["price"]!!)!!,
+                    imageUrl = cursor.getString(cols["image_url"]!!)!!,
+                    description = "",
+                    category = CoffeeCategory.Espresso
+                )
+                CartItemWithCoffee(cartItem, coffee)
+            }
         }
 
     suspend fun addToCart(coffeeId: String, size: String, quantity: Int = 1) {
@@ -228,12 +224,9 @@ class CoffeeRepository @Inject constructor(
                     email = cursor.getString(cols["email"]!!) ?: "No Email",
                     avatarUrl = cursor.getString(cols["avatar_url"]!!)
                 )
-                Log.d("CoffeeRepository", "getUser() successfully mapped: $user")
                 user
             }.map { 
-                val user = it.firstOrNull()
-                Log.d("CoffeeRepository", "getUser() flow emitted for user $userId: $user")
-                user
+                it.firstOrNull()
             }
         }
 
@@ -289,45 +282,79 @@ class CoffeeRepository @Inject constructor(
     }
 
     suspend fun setAsDefaultAddress(addressId: String) {
-        // Implementation omitted for brevity in migration
+        // Implementation
     }
 
     // Order Operations
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getOrders(): Flow<List<OrderWithItems>> =
-        powerSyncDatabase.watch(
-            "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
-            listOf(currentUserId)
-        ) { cursor ->
-            val cols = cursor.columnNames
-            val order = OrderEntity(
-                orderId = cursor.getString(cols["id"]!!)!!,
-                userId = cursor.getString(cols["user_id"]!!)!!,
-                totalPrice = cursor.getDouble(cols["total_price"]!!)!!,
-                status = OrderStatus.fromString(cursor.getString(cols["status"]!!)!!),
-                snapshotAddress = cursor.getString(cols["snapshot_address"]!!)!!,
-                timestamp = 0L
-            )
-            OrderWithItems(order, emptyList())
+        authRepository.currentUserIdFlow.flatMapLatest { userId ->
+            powerSyncDatabase.watch(
+                "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
+                listOf(userId)
+            ) { cursor ->
+                val cols = cursor.columnNames
+                val orderId = cursor.getString(cols["id"]!!) ?: ""
+                val priceStr = cursor.getString(cols["total_price"]!!)
+                val priceDouble = priceStr?.toDoubleOrNull() ?: cursor.getDouble(cols["total_price"]!!) ?: 0.0
+                val statusStr = cursor.getString(cols["status"]!!) ?: "PREPARING"
+                val addressStr = cursor.getString(cols["snapshot_address"]!!) ?: ""
+                val createdAtStr = cursor.getString(cols["created_at"]!!)
+
+                val timestamp = try {
+                    if (createdAtStr != null) {
+                        java.time.Instant.parse(createdAtStr).toEpochMilli()
+                    } else System.currentTimeMillis()
+                } catch (e: Exception) {
+                    System.currentTimeMillis()
+                }
+
+                OrderEntity(
+                    orderId = orderId,
+                    userId = userId,
+                    totalPrice = priceDouble,
+                    status = OrderStatus.fromString(statusStr),
+                    snapshotAddress = addressStr,
+                    timestamp = timestamp
+                )
+            }.flatMapLatest { orderList ->
+                if (orderList.isEmpty()) return@flatMapLatest flowOf(emptyList())
+
+                powerSyncDatabase.watch(
+                    "SELECT * FROM order_items",
+                    emptyList()
+                ) { cursor ->
+                    val cols = cursor.columnNames
+                    val itemId = cursor.getString(cols["id"]!!) ?: ""
+                    val orderId = cursor.getString(cols["order_id"]!!) ?: ""
+                    val coffeeName = cursor.getString(cols["coffee_name"]!!) ?: ""
+                    val quantity = cursor.getLong(cols["quantity"]!!)?.toInt() ?: 1
+                    val size = cursor.getString(cols["size"]!!) ?: "M"
+                    val priceStr = cursor.getString(cols["snapshot_price"]!!)
+                    val price = priceStr?.toDoubleOrNull() ?: cursor.getDouble(cols["snapshot_price"]!!) ?: 0.0
+
+                    OrderItemEntity(
+                        orderItemId = itemId,
+                        orderId = orderId,
+                        coffeeName = coffeeName,
+                        quantity = quantity,
+                        size = size,
+                        snapshotPrice = price
+                    )
+                }.map { allItems ->
+                    val itemsByOrder = allItems.groupBy { it.orderId }
+                    orderList.map { order ->
+                        OrderWithItems(
+                            order = order,
+                            items = itemsByOrder[order.orderId] ?: emptyList()
+                        )
+                    }
+                }
+            }
         }
 
     fun getOrderById(orderId: String): Flow<OrderWithItems?> =
-        powerSyncDatabase.watch(
-            "SELECT * FROM orders WHERE id = ?",
-            listOf(orderId)
-        ) { cursor ->
-            val cols = cursor.columnNames
-            OrderWithItems(
-                OrderEntity(
-                    orderId = cursor.getString(cols["id"]!!)!!,
-                    userId = cursor.getString(cols["user_id"]!!)!!,
-                    totalPrice = cursor.getDouble(cols["total_price"]!!)!!,
-                    status = OrderStatus.fromString(cursor.getString(cols["status"]!!)!!),
-                    snapshotAddress = cursor.getString(cols["snapshot_address"]!!)!!,
-                    timestamp = 0L
-                ),
-                emptyList()
-            )
-        }.map { it.firstOrNull() }
+        getOrders().map { list -> list.find { it.order.orderId == orderId } }
 
     suspend fun updateOrderStatus(orderId: String, status: OrderStatus) {
         powerSyncDatabase.execute(
@@ -343,6 +370,50 @@ class CoffeeRepository @Inject constructor(
         val cartItems = getCartItems().first()
         if (cartItems.isEmpty()) return
 
+        val selectedDiscount = if (!discountCode.isNull_orEmpty()) {
+            discountRepository.getAllDiscounts().first().find { it.code == discountCode }
+        } else null
+
+        val pricing = PricingEngine.calculatePrice(cartItems, selectedDiscount)
+        val orderId = UUID.randomUUID().toString()
+        val createdAtISO = java.time.Instant.now().toString()
+
+        // 1. Write order and order_items directly into local PowerSync database
+        powerSyncDatabase.writeTransaction { transaction ->
+            transaction.execute(
+                "INSERT INTO orders (id, user_id, total_price, status, snapshot_address, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                listOf(
+                    orderId,
+                    currentUserId,
+                    pricing.grandTotal.toString(),
+                    OrderStatus.PREPARING.name,
+                    "${address.tag}: ${address.fullAddress}",
+                    createdAtISO
+                )
+            )
+
+            cartItems.forEach { item ->
+                transaction.execute(
+                    "INSERT INTO order_items (id, order_id, coffee_name, quantity, size, snapshot_price) VALUES (?, ?, ?, ?, ?, ?)",
+                    listOf(
+                        UUID.randomUUID().toString(),
+                        orderId,
+                        item.coffee.name,
+                        item.cartItem.quantity,
+                        item.cartItem.size,
+                        item.coffee.price.toString()
+                    )
+                )
+            }
+
+            // Clear cart
+            transaction.execute(
+                "DELETE FROM cart WHERE user_id = ?",
+                listOf(currentUserId)
+            )
+        }
+
+        // 2. Optional Supabase RPC trigger if available
         try {
             val itemParams = cartItems.map {
                 OrderItemParams(
@@ -359,11 +430,8 @@ class CoffeeRepository @Inject constructor(
             )
 
             supabase.postgrest.rpc("place_order", params)
-                .decodeSingle<RemoteOrder>()
-
-            cartItems.forEach { removeFromCart(it.cartItem) }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.d("CoffeeRepository", "Supabase RPC place_order fallback: ${e.message}")
         }
     }
 
@@ -404,3 +472,6 @@ class CoffeeRepository @Inject constructor(
         )
     }
 }
+
+private fun String?.isNull_orEmpty(): Boolean = this == null || this.isEmpty()
+private fun String?.isNull_orBlank(): Boolean = this == null || this.trim().isEmpty()

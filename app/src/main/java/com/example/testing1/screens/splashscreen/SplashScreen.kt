@@ -26,6 +26,9 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
+    title: String = "COFFEE HOUSE",
+    subtitle: String = "Brewed to Perfection ✨",
+    displayDurationMillis: Long = 1200L,
     onSplashFinished: () -> Unit
 ) {
     val scale = remember { Animatable(0.5f) }
@@ -76,18 +79,18 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "COFFEE HOUSE",
+                text = title,
                 color = Color.White,
-                fontSize = 26.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 2.sp,
+                letterSpacing = 1.5.sp,
                 modifier = Modifier.alpha(alpha.value)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Brewed to Perfection ✨",
+                text = subtitle,
                 color = Color(0xFFC67C4E),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,

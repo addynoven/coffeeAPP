@@ -34,13 +34,13 @@ fun AppNavGraph(
     androidx.compose.runtime.LaunchedEffect(startDestination) {
         when (startDestination) {
             is Routes.HomeScreen -> {
-                navController.navigate(Routes.HomeScreen) {
+                navController.navigate(Routes.WelcomeSplash) {
                     popUpTo(Routes.LoginScreen) { inclusive = true }
                     popUpTo(Routes.WelcomeScreen) { inclusive = true }
                 }
             }
             is Routes.LoginScreen -> {
-                navController.navigate(Routes.LoginScreen) {
+                navController.navigate(Routes.SignOutSplash) {
                     popUpTo(0) { inclusive = true }
                 }
             }
@@ -54,10 +54,39 @@ fun AppNavGraph(
     ) {
         composable<Routes.SplashScreen> {
             SplashScreen(
+                title = "COFFEE HOUSE",
+                subtitle = "Brewed to Perfection ✨",
+                displayDurationMillis = 1200L,
                 onSplashFinished = {
                     val target = startDestination ?: Routes.WelcomeScreen
                     navController.navigate(target) {
                         popUpTo(Routes.SplashScreen) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable<Routes.WelcomeSplash> {
+            SplashScreen(
+                title = "Welcome Back! ☕",
+                subtitle = "Brewing your experience...",
+                displayDurationMillis = 1200L,
+                onSplashFinished = {
+                    navController.navigate(Routes.HomeScreen) {
+                        popUpTo(Routes.WelcomeSplash) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable<Routes.SignOutSplash> {
+            SplashScreen(
+                title = "See You Soon! 👋",
+                subtitle = "Signing out safely...",
+                displayDurationMillis = 1200L,
+                onSplashFinished = {
+                    navController.navigate(Routes.LoginScreen) {
+                        popUpTo(Routes.SignOutSplash) { inclusive = true }
                     }
                 }
             )

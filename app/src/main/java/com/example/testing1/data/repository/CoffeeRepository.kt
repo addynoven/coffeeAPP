@@ -28,6 +28,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 import javax.inject.Inject
 
@@ -363,12 +365,17 @@ class CoffeeRepository @Inject constructor(
         )
     }
 
+    private val placeOrderMutex = Mutex()
+
     suspend fun placeOrder(
         address: AddressEntity,
         discountCode: String? = null
-    ) {
+    ) = placeOrderMutex.withLock {
         val cartItems = getCartItems().first()
-        if (cartItems.isEmpty()) return
+        if (cartItems.isEmpty()) {
+            Log.w("CoffeeRepository", "placeOrder called but cart is empty. Ignoring duplicate request.")
+            return@withLock
+        }
 
         val selectedDiscount = if (!discountCode.isNull_orEmpty()) {
             discountRepository.getAllDiscounts().first().find { it.code == discountCode }
@@ -428,10 +435,10 @@ class CoffeeRepository @Inject constructor(
                 discountCode = discountCode,
                 items = itemParams
             )
-
             supabase.postgrest.rpc("place_order", params)
+            Log.d("CoffeeRepository", "Placed order successfully: $orderId")
         } catch (e: Exception) {
-            Log.d("CoffeeRepository", "Supabase RPC place_order fallback: ${e.message}")
+            Log.w("CoffeeRepository", "Remote place_order RPC failed, local write persisted: ${e.message}")
         }
     }
 

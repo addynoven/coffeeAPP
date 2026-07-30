@@ -68,7 +68,17 @@ class RazorpayManager @Inject constructor() : PaymentResultWithDataListener {
         }
     }
 
+    private var lastProcessedPaymentId: String? = null
+    private var lastPaymentTime: Long = 0
+
     override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) {
+        val now = System.currentTimeMillis()
+        if (razorpayPaymentId != null && razorpayPaymentId == lastProcessedPaymentId && (now - lastPaymentTime) < 5000) {
+            Log.w("RazorpayManager", "Duplicate payment success event ignored: $razorpayPaymentId")
+            return
+        }
+        lastProcessedPaymentId = razorpayPaymentId
+        lastPaymentTime = now
         Log.d("RazorpayManager", "Payment Success: $razorpayPaymentId")
         _paymentEvents.tryEmit(PaymentResult.Success(razorpayPaymentId, paymentData))
     }

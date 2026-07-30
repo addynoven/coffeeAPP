@@ -25,6 +25,10 @@
             android:name="com.razorpay.ApiKey"
             android:value="@string/razorpay_key_id" />
 
+        <meta-data
+            android:name="com.razorpay.hide_sdk_compatibility_dialog"
+            android:value="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

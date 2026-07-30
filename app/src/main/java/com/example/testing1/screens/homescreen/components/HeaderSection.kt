@@ -1,6 +1,7 @@
 package com.example.testing1.screens.homescreen.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,86 +33,70 @@ fun HeaderSection(
     selectedLocationText: String = stringResource(R.string.default_location),
     onLocationClick: () -> Unit = {}
 ) {
-    var isDeliveryMode by remember { mutableStateOf(true) }
+    var deliveryMode by remember { mutableStateOf("DELIVERY") } // "DINE_IN" or "DELIVERY"
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        // 1. Top Header Bar: Brand Logo + Dine-in / Delivery Pill Switcher + Search Icon (BK Style)
+        // 1. Top Bar: Dine-In/Takeaway vs Delivery Toggle + Search Icon
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Brand Logo / Icon
-            Text(
-                text = "☕ BK-COFFEE",
-                fontFamily = FontFamily.Serif,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            // Dine-in / Delivery Pill Switcher
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
+            // Dine-in vs Delivery Segmented Pill (Burger King Style)
+            Row(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .padding(2.dp)
+                    .background(Color.White.copy(alpha = 0.15f))
+                    .padding(3.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(2.dp)
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (deliveryMode == "DINE_IN") Color(0xFFC67C4E) else Color.Transparent)
+                        .clickable { deliveryMode = "DINE_IN" }
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(if (!isDeliveryMode) MaterialTheme.colorScheme.primary else Color.Transparent)
-                            .clickable { isDeliveryMode = false }
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "DINE-IN",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (!isDeliveryMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = "DINE-IN/TAKEAWAY",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (deliveryMode == "DINE_IN") Color.White else Color.LightGray
+                    )
+                }
 
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(if (isDeliveryMode) Color(0xFFE65100) else Color.Transparent)
-                            .clickable { isDeliveryMode = true }
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "DELIVERY",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isDeliveryMode) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (deliveryMode == "DELIVERY") Color(0xFFC67C4E) else Color.Transparent)
+                        .clickable { deliveryMode = "DELIVERY" }
+                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "DELIVERY",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (deliveryMode == "DELIVERY") Color.White else Color.LightGray
+                    )
                 }
             }
 
-            // Search Icon Button
+            // Quick Search Icon Button
             IconButton(
                 onClick = onSearchClick,
                 modifier = Modifier
-                    .size(36.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(Color.White.copy(alpha = 0.15f))
+                    .size(36.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = Color.White,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -120,59 +104,60 @@ fun HeaderSection(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // 2. Deliver To Address Bar (Burger King Selector Style)
-        Card(
-            onClick = onLocationClick,
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-            modifier = Modifier.fillMaxWidth()
+        // 2. Deliver To Address Bar (Burger King Dropdown Style)
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { onLocationClick() },
+            color = Color.White.copy(alpha = 0.12f)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = Color(0xFFE65100),
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Deliver to",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "|",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.outline
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = selectedLocationText,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = Color(0xFFED9153),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Deliver to:",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFED9153)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = selectedLocationText,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Change Location",
-                    tint = Color(0xFFE65100),
+                    contentDescription = stringResource(R.string.change_location_desc),
+                    tint = Color(0xFFED9153),
                     modifier = Modifier.size(20.dp)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // 3. Search Bar
         SearchBar(
             searchText = searchText,
             onSearchTextChange = onSearchTextChange,

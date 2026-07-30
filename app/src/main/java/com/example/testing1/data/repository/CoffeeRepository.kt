@@ -110,16 +110,17 @@ class CoffeeRepository @Inject constructor(
             ) { true }.map { it.isNotEmpty() }
         }
 
-    suspend fun toggleFavorite(coffeeId: String, isFav: Boolean) {
-        if (isFav) {
+    suspend fun toggleFavorite(coffeeId: String, targetState: Boolean) {
+        val userId = currentUserId
+        if (targetState) {
             powerSyncDatabase.execute(
-                "DELETE FROM favorites WHERE user_id = ? AND coffee_id = ?",
-                listOf(currentUserId, coffeeId)
+                "INSERT OR IGNORE INTO favorites (id, user_id, coffee_id) VALUES (?, ?, ?)",
+                listOf(UUID.randomUUID().toString(), userId, coffeeId)
             )
         } else {
             powerSyncDatabase.execute(
-                "INSERT INTO favorites (id, user_id, coffee_id) VALUES (?, ?, ?)",
-                listOf(UUID.randomUUID().toString(), currentUserId, coffeeId)
+                "DELETE FROM favorites WHERE user_id = ? AND coffee_id = ?",
+                listOf(userId, coffeeId)
             )
         }
     }

@@ -1,13 +1,11 @@
 package com.example.testing1.data.local.discount
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.example.testing1.models.Discount
 import com.example.testing1.models.DiscountType
+import kotlinx.serialization.Serializable
 
-@Entity(tableName = "discounts")
+@Serializable
 data class DiscountEntity(
-    @PrimaryKey
     val code: String,
     val description: String,
     val type: String, // Stored as String for simplicity in this step, or use converter

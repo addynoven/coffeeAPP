@@ -2,7 +2,7 @@ package com.example.testing1.di
 
 import android.content.Context
 import com.example.testing1.data.remote.SupabaseConnector
-import com.example.testing1.data.schema
+import com.example.testing1.data.local.AppSchema
 import com.powersync.DatabaseDriverFactory
 import com.powersync.PowerSyncDatabase
 import dagger.Module
@@ -35,7 +35,7 @@ object PowerSyncModule {
     ): PowerSyncDatabase {
         return PowerSyncDatabase(
             factory = DatabaseDriverFactory(context),
-            schema = schema
+            schema = AppSchema
         )
     }
 }

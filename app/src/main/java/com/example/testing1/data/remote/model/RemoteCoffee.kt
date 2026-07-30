@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RemoteCoffee(
-    val id: Int,
+    val id: String,
     val name: String,
     val description: String,
     val category: CoffeeCategory,

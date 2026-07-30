@@ -18,6 +18,7 @@ class SettingsRepository @Inject constructor(
         val THEME_CONFIG = stringPreferencesKey("theme_config")
         val LAST_COFFEE_SYNC = stringPreferencesKey("last_coffee_sync")
         val SELECTED_LANGUAGE = stringPreferencesKey("selected_language")
+        val HAS_SEEN_WELCOME = androidx.datastore.preferences.core.booleanPreferencesKey("has_seen_welcome")
     }
 
     fun getThemeConfig(): Flow<ThemeConfig> = dataStore.data.map { preferences ->
@@ -52,6 +53,16 @@ class SettingsRepository @Inject constructor(
     suspend fun setSelectedLanguage(languageCode: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SELECTED_LANGUAGE] = languageCode
+        }
+    }
+
+    fun getHasSeenWelcome(): Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.HAS_SEEN_WELCOME] ?: false
+    }
+
+    suspend fun setHasSeenWelcome(hasSeen: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.HAS_SEEN_WELCOME] = hasSeen
         }
     }
 }

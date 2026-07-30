@@ -3,9 +3,9 @@ package com.example.testing1.screens.homescreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
@@ -139,75 +139,118 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .verticalScroll(rememberScrollState())
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(320.dp)
-                ) {
-
+                item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(240.dp)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        Color(0xFF131313),
-                                        Color(0xFF313131)
+                            .height(320.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(240.dp)
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(
+                                            Color(0xFF131313),
+                                            Color(0xFF313131)
+                                        )
                                     )
                                 )
-                            )
-                    )
-
-                    Column {
-                        HeaderSection(
-                            uiState.searchText,
-                            onSearchTextChange,
-                            onClearSearch,
-                            onSearchClick,
-                            onSearchFocusChange
                         )
-                        
-                        if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {
-                            RecentSearchesSection(
-                                searches = uiState.recentSearches,
-                                onSearchClick = onRecentSearchClick
-                            )
-                        }
-                    }
 
-                    if (!uiState.isSearchFocused) {
-                        Banner(modifier = Modifier.align(Alignment.BottomCenter))
+                        Column {
+                            HeaderSection(
+                                uiState.searchText,
+                                onSearchTextChange,
+                                onClearSearch,
+                                onSearchClick,
+                                onSearchFocusChange
+                            )
+                            
+                            if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {
+                                RecentSearchesSection(
+                                    searches = uiState.recentSearches,
+                                    onSearchClick = onRecentSearchClick
+                                )
+                            }
+                        }
+
+                        if (!uiState.isSearchFocused) {
+                            Banner(modifier = Modifier.align(Alignment.BottomCenter))
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    CategoryRow(
+                        categories = uiState.categories,
+                        selectedCategory = uiState.selectedCategory,
+                        onCategorySelected = onCategorySelected
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
-                CategoryRow(
-                    categories = uiState.categories,
-                    selectedCategory = uiState.selectedCategory,
-                    onCategorySelected = onCategorySelected
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                CoffeeGrid(
-                    items = uiState.coffeeItems,
-                    isLoading = uiState.isLoading,
-                    onItemClick = onItemClick,
-                    onToggleFavorite = { coffee ->
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onToggleFavorite(coffee)
+                if (uiState.isLoading) {
+                    item {
+                        CoffeeGrid(
+                            items = emptyList(),
+                            isLoading = true,
+                            onItemClick = {},
+                            onToggleFavorite = {}
+                        )
                     }
-                )
+                } else if (uiState.coffeeItems.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No coffee found for this category",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    val chunkedItems = uiState.coffeeItems.chunked(2)
+                    items(chunkedItems) { rowItems ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            rowItems.forEach { item ->
+                                com.example.testing1.screens.homescreen.components.CoffeeCard(
+                                    item = item,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { onItemClick(item) },
+                                    onToggleFavorite = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onToggleFavorite(item)
+                                    }
+                                )
+                            }
+                            if (rowItems.size < 2) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                item {
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
     }

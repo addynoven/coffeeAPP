@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
@@ -52,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.testing1.R
 import com.example.testing1.data.local.address.AddressEntity
@@ -89,7 +91,8 @@ fun ProfileRoute(
         onSaveNewAddress = viewModel::onSaveNewAddress,
         onCancelNewAddress = viewModel::onCancelNewAddress,
         onSetDefaultAddress = viewModel::onSetDefaultAddress,
-        onDeleteAddress = viewModel::onDeleteAddress
+        onDeleteAddress = viewModel::onDeleteAddress,
+        onLogoutClick = viewModel::logout
     )
 }
 
@@ -112,8 +115,9 @@ fun ProfileScreen(
     onNewAddressTextChange: (String) -> Unit,
     onSaveNewAddress: () -> Unit,
     onCancelNewAddress: () -> Unit,
-    onSetDefaultAddress: (Int) -> Unit,
-    onDeleteAddress: (AddressEntity) -> Unit
+    onSetDefaultAddress: (String) -> Unit,
+    onDeleteAddress: (AddressEntity) -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     if (uiState.isAddingAddress) {
         AddAddressDialog(
@@ -192,12 +196,21 @@ fun ProfileScreen(
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(60.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    if (uiState.user?.avatarUrl != null) {
+                        AsyncImage(
+                            model = uiState.user.avatarUrl,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(60.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 
@@ -219,13 +232,13 @@ fun ProfileScreen(
                     )
                 } else {
                     Text(
-                        text = uiState.user?.name ?: stringResource(R.string.unknown_user),
+                        text = uiState.user?.name?.ifBlank { "Unknown Name" } ?: "Unknown Name",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = uiState.user?.email ?: stringResource(R.string.no_email),
+                        text = uiState.user?.email?.ifBlank { "No Email Address" } ?: "No Email Address",
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -303,6 +316,13 @@ fun ProfileScreen(
                             icon = Icons.Default.Settings,
                             title = stringResource(R.string.settings_menu),
                             onClick = onSettingsClick
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ProfileMenuItem(
+                            icon = Icons.AutoMirrored.Filled.ExitToApp,
+                            title = "Logout",
+                            onClick = onLogoutClick,
+                            tint = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -416,7 +436,12 @@ fun AddAddressDialog(
 }
 
 @Composable
-fun ProfileMenuItem(icon: ImageVector, title: String, onClick: () -> Unit) {
+fun ProfileMenuItem(
+    icon: ImageVector, 
+    title: String, 
+    onClick: () -> Unit,
+    tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -428,7 +453,7 @@ fun ProfileMenuItem(icon: ImageVector, title: String, onClick: () -> Unit) {
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = tint
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
@@ -466,6 +491,7 @@ fun ProfileScreenPreview() {
         onSaveNewAddress = {},
         onCancelNewAddress = {},
         onSetDefaultAddress = {},
-        onDeleteAddress = {}
+        onDeleteAddress = {},
+        onLogoutClick = {}
     )
 }

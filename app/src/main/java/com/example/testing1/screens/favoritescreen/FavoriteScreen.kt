@@ -34,7 +34,7 @@ fun FavoriteScreenPreview() {
         uiState = FavoriteUiState(
             favoriteItems = listOf(
                 CoffeeEntity(
-                    id = 1,
+                    id = "1",
                     name = "Espresso",
                     description = "Strong",
                     category = com.example.testing1.models.CoffeeCategory.Espresso,

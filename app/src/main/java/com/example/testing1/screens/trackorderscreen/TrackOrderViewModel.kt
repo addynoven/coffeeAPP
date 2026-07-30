@@ -16,7 +16,7 @@ class TrackOrderViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val orderId: Int = checkNotNull(savedStateHandle["orderId"])
+    private val orderId: String = checkNotNull(savedStateHandle["orderId"])
 
     private val _uiState = MutableStateFlow(TrackOrderUiState())
     val uiState: StateFlow<TrackOrderUiState> = _uiState

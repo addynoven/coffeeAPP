@@ -17,5 +17,16 @@ enum class CoffeeCategory(val displayNameRes: Int) {
     @SerialName("Espresso")
     Espresso(R.string.category_espresso),
     @SerialName("Flat White")
-    FlatWhite(R.string.category_flat_white)
+    FlatWhite(R.string.category_flat_white);
+
+    companion object {
+        fun fromString(value: String): CoffeeCategory {
+            return entries.find { it.name.equals(value, ignoreCase = true) }
+                ?: when (value) {
+                    "All Coffee" -> AllCoffee
+                    "Flat White" -> FlatWhite
+                    else -> Espresso // Fallback
+                }
+        }
+    }
 }

@@ -21,6 +21,8 @@ shimmer = "1.5.0"
 lottie = "6.7.1"
 cloudinary = "1.7.0"
 powersync = "1.12.0"
+credentials = "1.5.0-rc01"
+googleid = "1.1.1"
 
 [libraries]
 
@@ -70,6 +72,9 @@ cloudinary-kotlin = { group = "com.cloudinary", name = "kotlin-url-gen", version
 # Powersync
 powersync-core = { module = "com.powersync:core", version.ref = "powersync" }
 powersync-integration-supabase = { module = "com.powersync:connector-supabase", version.ref = "powersync" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

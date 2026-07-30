@@ -1,5 +1,6 @@
 package com.example.testing1.screens.homescreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testing1.data.local.coffee.CoffeeEntity
@@ -20,6 +21,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var allCoffee = emptyList<CoffeeEntity>()
+    private var hasSyncedAtLeastOnce = false
     private val _uiState = MutableStateFlow(HomeUiState())
 
     val uiState: StateFlow<HomeUiState>
@@ -36,9 +38,18 @@ class HomeViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
+            Log.d("HomeViewModel", "Starting coffee data collection...")
             repository.getAllCoffee().collect { coffees ->
+                Log.d("HomeViewModel", "Received ${coffees.size} coffee items from repository")
                 allCoffee = coffees
-                filterCoffee()
+                updateUi()
+            }
+        }
+        viewModelScope.launch {
+            repository.syncStatus.collect { status ->
+                Log.d("HomeViewModel", "Sync Status Changed: Connected=${status.connected}, InitialSynced=${status.hasSynced}")
+                hasSyncedAtLeastOnce = status.hasSynced ?: false
+                updateUi()
             }
         }
         viewModelScope.launch {
@@ -104,7 +115,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun filterCoffee() {
+    private fun updateUi() {
         val currentState = _uiState.value
         val filteredItems = allCoffee.filter { item ->
             val matchesSearch =
@@ -115,9 +126,21 @@ class HomeViewModel @Inject constructor(
 
             matchesSearch && matchesCategory
         }
+        
+        Log.d("HomeViewModel", "updateUi() - Total: ${allCoffee.size}, Filtered: ${filteredItems.size}, Category: ${currentState.selectedCategory}, isLoading: ${allCoffee.isEmpty() && !hasSyncedAtLeastOnce}")
+        if (allCoffee.isNotEmpty() && filteredItems.isEmpty()) {
+            allCoffee.forEach { 
+                Log.d("HomeViewModel", "Filtering Mismatch - Item: ${it.name}, Category: ${it.category}")
+            }
+        }
+        
         _uiState.value = _uiState.value.copy(
             coffeeItems = filteredItems,
-            isLoading = false
+            isLoading = allCoffee.isEmpty() && !hasSyncedAtLeastOnce
         )
+    }
+
+    private fun filterCoffee() {
+        updateUi()
     }
 }

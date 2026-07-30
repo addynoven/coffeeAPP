@@ -23,7 +23,7 @@ class DetailViewModel @Inject constructor(
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    fun loadCoffee(coffeeId: Int) {
+    fun loadCoffee(coffeeId: String) {
         viewModelScope.launch {
             val item = repository.getCoffeeById(coffeeId)
             _uiState.value = _uiState.value.copy(

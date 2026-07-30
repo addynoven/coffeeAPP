@@ -1,5 +1,6 @@
 package com.example.testing1.data.remote
 
+import android.util.Log
 import co.touchlab.kermit.Logger
 import com.powersync.PowerSyncDatabase
 import com.powersync.connectors.PowerSyncBackendConnector
@@ -88,22 +89,29 @@ open class SupabaseConnector(
 
         supabaseClient.httpClient.httpClient.plugin(HttpSend)
             .intercept { request ->
-                val resp = execute(request)
-                val response = resp.response
-                if (response.status.value >= 400) {
-                    val responseText = response.bodyAsText()
-
-                    try {
-                        val error =
-                            json.decodeFromString<Map<String, String?>>(
-                                responseText,
-                            )
-                        errorCode = error["code"]
-                    } catch (e: Exception) {
-                        Logger.e("Failed to parse error response: $e")
+                Log.d("SupabaseConnector", "Intercepting request: ${request.url}")
+                try {
+                    val resp = execute(request)
+                    val response = resp.response
+                    Log.d("SupabaseConnector", "Response received: ${response.status}")
+                    if (response.status.value >= 400) {
+                        val responseText = response.bodyAsText()
+                        Log.d("SupabaseConnector", "Error response body: $responseText")
+                        try {
+                            val error =
+                                json.decodeFromString<Map<String, String?>>(
+                                    responseText,
+                                )
+                            errorCode = error["code"]
+                        } catch (e: Exception) {
+                            Logger.e("Failed to parse error response: $e")
+                        }
                     }
+                    resp
+                } catch (e: Exception) {
+                    Log.e("SupabaseConnector", "Request failed with exception: ${e.message}", e)
+                    throw e
                 }
-                resp
             }
     }
 
@@ -151,13 +159,18 @@ open class SupabaseConnector(
 
     override suspend fun fetchCredentials(): PowerSyncCredentials =
         runWrapped {
-            check(supabaseClient.auth.sessionStatus.value is SessionStatus.Authenticated) { "Supabase client is not authenticated" }
+            val status = supabaseClient.auth.sessionStatus.value
+            Log.d("SupabaseConnector", "fetchCredentials called, status: $status")
+            
+            check(status is SessionStatus.Authenticated) { "Supabase client is not authenticated" }
 
             val session =
                 supabaseClient.auth.currentSessionOrNull()
                     ?: error("Could not fetch Supabase credentials")
 
             check(session.user != null) { "No user data" }
+            
+            Log.d("SupabaseConnector", "Returning credentials for user: ${session.user?.id}")
 
             PowerSyncCredentials(
                 endpoint = powerSyncEndpoint,

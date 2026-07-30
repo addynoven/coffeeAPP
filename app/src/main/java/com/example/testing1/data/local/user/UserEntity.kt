@@ -1,12 +1,11 @@
 package com.example.testing1.data.local.user
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
-@Entity(tableName = "users")
+@Serializable
 data class UserEntity(
-    @PrimaryKey
     val id: String,
     val name: String,
-    val email: String
+    val email: String,
+    val avatarUrl: String? = null
 )

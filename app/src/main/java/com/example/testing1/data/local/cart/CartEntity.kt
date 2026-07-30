@@ -1,18 +1,12 @@
 package com.example.testing1.data.local.cart
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
-@Entity(
-    tableName = "cart",
-    indices = [Index(value = ["userId", "coffeeId", "size"], unique = true)]
-)
+@Serializable
 data class CartEntity(
-    @PrimaryKey(autoGenerate = true)
-    val cartId: Int = 0,
+    val cartId: String,
     val userId: String,
-    val coffeeId: Int,
+    val coffeeId: String,
     val quantity: Int,
     val size: String
 )

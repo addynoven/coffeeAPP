@@ -1,0 +1,22 @@
+config:
+  edition: 3
+
+streams:
+  # Global data streamed to all clients automatically
+  global_catalog:
+    auto_subscribe: true
+    queries:
+      - SELECT * FROM coffee
+      - SELECT * FROM discounts WHERE active = true
+
+  # Personal data filtered by the authenticated user's ID
+  user_data:
+    auto_subscribe: true
+    queries:
+      - SELECT * FROM users WHERE id = auth.user_id()
+      - SELECT * FROM addresses WHERE user_id = auth.user_id()
+      - SELECT * FROM favorites WHERE user_id = auth.user_id()
+      - SELECT * FROM cart WHERE user_id = auth.user_id()
+      - SELECT * FROM search_history WHERE user_id = auth.user_id()
+      - SELECT * FROM orders WHERE user_id = auth.user_id()
+      - SELECT order_items.* FROM order_items INNER JOIN orders ON order_items.order_id = orders.id WHERE orders.user_id = auth.user_id()

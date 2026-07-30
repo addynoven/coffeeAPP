@@ -146,7 +146,7 @@ private fun CoffeeGridPreview() {
     CoffeeGrid(
         items = listOf(
             CoffeeEntity(
-                id = 0,
+                id = "0",
                 name = "Espresso",
                 description = "Strong and rich",
                 category = CoffeeCategory.Espresso,
@@ -154,7 +154,7 @@ private fun CoffeeGridPreview() {
                 imageUrl = ""
             ),
             CoffeeEntity(
-                id = 1,
+                id = "1",
                 name = "Latte",
                 description = "Smooth and creamy",
                 category = CoffeeCategory.Latte,
@@ -162,7 +162,7 @@ private fun CoffeeGridPreview() {
                 imageUrl = ""
             ),
             CoffeeEntity(
-                id = 2,
+                id = "2",
                 name = "Cappuccino",
                 description = "With thick foam",
                 category = CoffeeCategory.Cappuccino,
@@ -170,7 +170,7 @@ private fun CoffeeGridPreview() {
                 imageUrl = ""
             ),
             CoffeeEntity(
-                id = 3,
+                id = "3",
                 name = "Macchiato",
                 description = "With a dash of milk",
                 category = CoffeeCategory.Macchiato,

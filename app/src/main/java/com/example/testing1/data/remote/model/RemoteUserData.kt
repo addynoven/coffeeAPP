@@ -6,21 +6,21 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RemoteFavorite(
     @SerialName("id")
-    val id: Int? = null,
+    val id: String? = null,
     @SerialName("user_id")
     val userId: String,
     @SerialName("coffee_id")
-    val coffeeId: Int
+    val coffeeId: String
 )
 
 @Serializable
 data class RemoteCart(
     @SerialName("id")
-    val id: Int? = null,
+    val id: String? = null,
     @SerialName("user_id")
     val userId: String,
     @SerialName("coffee_id")
-    val coffeeId: Int,
+    val coffeeId: String,
     @SerialName("quantity")
     val quantity: Int,
     @SerialName("size")
@@ -30,7 +30,7 @@ data class RemoteCart(
 @Serializable
 data class RemoteAddress(
     @SerialName("id")
-    val id: Int? = null,
+    val id: String? = null,
     @SerialName("user_id")
     val userId: String,
     @SerialName("tag")
@@ -46,7 +46,7 @@ data class RemoteAddress(
 @Serializable
 data class RemoteOrder(
     @SerialName("id")
-    val id: Int? = null,
+    val id: String? = null,
     @SerialName("user_id")
     val userId: String,
     @SerialName("total_price")
@@ -62,9 +62,9 @@ data class RemoteOrder(
 @Serializable
 data class RemoteOrderItem(
     @SerialName("id")
-    val id: Int? = null,
+    val id: String? = null,
     @SerialName("order_id")
-    val orderId: Int,
+    val orderId: String,
     @SerialName("coffee_name")
     val coffeeName: String,
     @SerialName("quantity")
@@ -78,7 +78,7 @@ data class RemoteOrderItem(
 @Serializable
 data class RemoteSearchHistory(
     @SerialName("id")
-    val id: Int? = null,
+    val id: String? = null,
     @SerialName("user_id")
     val userId: String,
     @SerialName("query")
@@ -108,7 +108,7 @@ data class RemoteDiscount(
 @Serializable
 data class OrderItemParams(
     @SerialName("coffee_id")
-    val coffeeId: Int,
+    val coffeeId: String,
     @SerialName("quantity")
     val quantity: Int,
     @SerialName("size")

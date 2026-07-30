@@ -145,7 +145,7 @@ fun CoffeeCard(
 private fun CoffeeCardPreview() {
     CoffeeCard(
         item = CoffeeEntity(
-            id = 0,
+            id = "0",
             name = "Espresso",
             description = "Strong and rich",
             price = 3.8,

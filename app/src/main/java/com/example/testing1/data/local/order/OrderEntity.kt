@@ -1,13 +1,11 @@
 package com.example.testing1.data.local.order
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.example.testing1.models.OrderStatus
+import kotlinx.serialization.Serializable
 
-@Entity(tableName = "orders")
+@Serializable
 data class OrderEntity(
-    @PrimaryKey(autoGenerate = true)
-    val orderId: Int = 0,
+    val orderId: String,
     val userId: String,
     val timestamp: Long = System.currentTimeMillis(),
     val totalPrice: Double,

@@ -26,9 +26,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.testing1.R
 import com.example.testing1.navigation.Routes
+import com.example.testing1.screens.auth.AuthViewModel
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -40,7 +42,8 @@ fun WelcomeScreenPreview() {
 
 @Composable
 fun WelcomeScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     Box(
         modifier = Modifier
@@ -80,7 +83,10 @@ fun WelcomeScreen(
 
             Button(
                 onClick = {
-                    navController.navigate(Routes.HomeScreen)
+                    viewModel.setWelcomeSeen()
+                    navController.navigate(Routes.LoginScreen) {
+                        popUpTo(Routes.WelcomeScreen) { inclusive = true }
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),

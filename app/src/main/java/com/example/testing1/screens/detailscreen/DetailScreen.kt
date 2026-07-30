@@ -60,7 +60,7 @@ fun DetailScreenPreview() {
     DetailScreen(
         uiState = DetailUiState(
             coffeeItem = com.example.testing1.data.local.coffee.CoffeeEntity(
-                id = 1,
+                id = "1",
                 name = "Cappuccino",
                 description = "Rich and creamy",
                 category = com.example.testing1.models.CoffeeCategory.Cappuccino,
@@ -79,7 +79,7 @@ fun DetailScreenPreview() {
 
 @Composable
 fun DetailRoute(
-    coffeeId: Int,
+    coffeeId: String,
     onBackClick: () -> Unit,
     viewModel: DetailViewModel = hiltViewModel()
 ) {

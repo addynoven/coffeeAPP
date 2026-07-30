@@ -18,6 +18,11 @@
 local.properties
 .env
 secret.json
+*.json
+!gradle/libs.versions.toml
+output.txt
+.android/
+.idea/
 .python-version
 .venv
 

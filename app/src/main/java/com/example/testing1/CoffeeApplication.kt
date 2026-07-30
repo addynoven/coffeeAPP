@@ -1,6 +1,7 @@
 package com.example.testing1
 
 import android.app.Application
+import android.util.Log
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.disk.DiskCache
@@ -28,9 +29,16 @@ class CoffeeApplication : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d("CoffeeApplication", "Application onCreate called")
 
         applicationScope.launch {
-            appInitializer.initialize()
+            Log.d("CoffeeApplication", "Starting AppInitializer...")
+            try {
+                appInitializer.initialize()
+                Log.d("CoffeeApplication", "AppInitializer finished")
+            } catch (e: Exception) {
+                Log.e("CoffeeApplication", "AppInitializer failed", e)
+            }
         }
     }
 

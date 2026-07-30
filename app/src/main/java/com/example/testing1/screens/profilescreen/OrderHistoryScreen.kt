@@ -44,7 +44,7 @@ import java.util.Date
 @Composable
 fun OrderHistoryRoute(
     onBackClick: () -> Unit,
-    onOrderClick: (Int) -> Unit,
+    onOrderClick: (String) -> Unit,
     viewModel: OrderHistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -60,7 +60,7 @@ fun OrderHistoryRoute(
 fun OrderHistoryScreen(
     uiState: OrderHistoryUiState,
     onBackClick: () -> Unit,
-    onOrderClick: (Int) -> Unit
+    onOrderClick: (String) -> Unit
 ) {
     Scaffold(
         topBar = {

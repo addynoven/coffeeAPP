@@ -121,6 +121,11 @@ dependencies {
     implementation(libs.powersync.core)
     implementation(libs.powersync.integration.supabase)
 
+    // Auth & Google Login
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)

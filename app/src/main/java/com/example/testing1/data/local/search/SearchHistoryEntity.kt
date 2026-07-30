@@ -1,29 +1,10 @@
 package com.example.testing1.data.local.search
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import com.example.testing1.data.local.user.UserEntity
+import kotlinx.serialization.Serializable
 
-@Entity(
-    tableName = "search_history",
-    foreignKeys = [
-        ForeignKey(
-            entity = UserEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["userId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [
-        Index(value = ["userId"]),
-        Index(value = ["userId", "query"], unique = true)
-    ]
-)
+@Serializable
 data class SearchHistoryEntity(
-    @PrimaryKey(autoGenerate = true)
-    val searchId: Int = 0,
+    val searchId: String,
     val userId: String,
     val query: String,
     val resultCount: Int,

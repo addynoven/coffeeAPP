@@ -8,11 +8,17 @@ sealed class Routes {
     data object WelcomeScreen : Routes()
 
     @Serializable
+    data object LoginScreen : Routes()
+
+    @Serializable
+    data object SignUpScreen : Routes()
+
+    @Serializable
     data object HomeScreen : Routes()
 
     @Serializable
     data class DetailScreen(
-        val coffeeId: Int
+        val coffeeId: String
     ) : Routes()
 
     @Serializable
@@ -29,7 +35,7 @@ sealed class Routes {
 
     @Serializable
     data class TrackOrderScreen(
-        val orderId: Int
+        val orderId: String
     ) : Routes()
 
     @Serializable

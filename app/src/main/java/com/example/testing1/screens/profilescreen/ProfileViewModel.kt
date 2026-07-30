@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testing1.data.local.address.AddressEntity
 import com.example.testing1.data.local.user.UserEntity
+import com.example.testing1.data.repository.AuthRepository
 import com.example.testing1.data.repository.CoffeeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val repository: CoffeeRepository
+    private val repository: CoffeeRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -58,7 +60,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             repository.updateUser(
                 UserEntity(
-                    id = CoffeeRepository.CURRENT_USER_ID,
+                    id = authRepository.currentUserId,
                     name = currentState.editName,
                     email = currentState.editEmail
                 )
@@ -95,7 +97,8 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             repository.addAddress(
                 AddressEntity(
-                    userId = CoffeeRepository.CURRENT_USER_ID,
+                    addressId = java.util.UUID.randomUUID().toString(),
+                    userId = authRepository.currentUserId,
                     tag = currentState.newAddressTag,
                     fullAddress = currentState.newAddressText,
                     isDefault = currentState.addresses.isEmpty()
@@ -112,7 +115,7 @@ class ProfileViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isAddingAddress = false, newAddressText = "")
     }
 
-    fun onSetDefaultAddress(addressId: Int) {
+    fun onSetDefaultAddress(addressId: String) {
         viewModelScope.launch {
             repository.setAsDefaultAddress(addressId)
         }
@@ -121,6 +124,12 @@ class ProfileViewModel @Inject constructor(
     fun onDeleteAddress(address: AddressEntity) {
         viewModelScope.launch {
             repository.deleteAddress(address)
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.signOut()
         }
     }
 }

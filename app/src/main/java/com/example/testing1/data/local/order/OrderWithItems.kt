@@ -1,13 +1,6 @@
 package com.example.testing1.data.local.order
 
-import androidx.room.Embedded
-import androidx.room.Relation
-
 data class OrderWithItems(
-    @Embedded val order: OrderEntity,
-    @Relation(
-        parentColumn = "orderId",
-        entityColumn = "orderId"
-    )
+    val order: OrderEntity,
     val items: List<OrderItemEntity>
 )

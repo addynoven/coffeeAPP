@@ -35,7 +35,7 @@ class CoffeeRepository @Inject constructor(
     private val authRepository: AuthRepository,
     private val supabase: SupabaseClient
 ) {
-    private val currentUserId: String
+    val currentUserId: String
         get() = authRepository.currentUserId
 
     val syncStatus = powerSyncDatabase.currentStatus.asFlow()
@@ -251,27 +251,32 @@ class CoffeeRepository @Inject constructor(
             listOf(currentUserId)
         ) { cursor ->
             val cols = cursor.columnNames
+            val latIndex = cols["latitude"]
+            val lonIndex = cols["longitude"]
             AddressEntity(
                 addressId = cursor.getString(cols["id"]!!)!!,
                 userId = cursor.getString(cols["user_id"]!!)!!,
                 tag = cursor.getString(cols["tag"]!!)!!,
                 fullAddress = cursor.getString(cols["full_address"]!!)!!,
                 isDefault = cursor.getLong(cols["is_default"]!!) == 1L,
-                lastUsedTimestamp = cursor.getLong(cols["last_used_timestamp"]!!)
-                    ?: 0L
+                lastUsedTimestamp = cursor.getLong(cols["last_used_timestamp"]!!) ?: 0L,
+                latitude = latIndex?.let { cursor.getDouble(it) },
+                longitude = lonIndex?.let { cursor.getDouble(it) }
             )
         }
 
     suspend fun addAddress(address: AddressEntity) {
         powerSyncDatabase.execute(
-            "INSERT INTO addresses (id, user_id, tag, full_address, is_default, last_used_timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO addresses (id, user_id, tag, full_address, is_default, last_used_timestamp, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             listOf(
-                UUID.randomUUID().toString(),
+                if (address.addressId.isNotBlank()) address.addressId else UUID.randomUUID().toString(),
                 currentUserId,
                 address.tag,
                 address.fullAddress,
                 if (address.isDefault) 1 else 0,
-                address.lastUsedTimestamp
+                address.lastUsedTimestamp,
+                address.latitude,
+                address.longitude
             )
         )
     }

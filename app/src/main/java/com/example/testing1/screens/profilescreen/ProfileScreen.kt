@@ -92,7 +92,8 @@ fun ProfileRoute(
         onCancelNewAddress = viewModel::onCancelNewAddress,
         onSetDefaultAddress = viewModel::onSetDefaultAddress,
         onDeleteAddress = viewModel::onDeleteAddress,
-        onLogoutClick = viewModel::logout
+        onLogoutClick = viewModel::logout,
+        onSaveMapAddress = viewModel::saveMapAddress
     )
 }
 
@@ -117,16 +118,15 @@ fun ProfileScreen(
     onCancelNewAddress: () -> Unit,
     onSetDefaultAddress: (String) -> Unit,
     onDeleteAddress: (AddressEntity) -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    onSaveMapAddress: (tag: String, fullAddress: String, lat: Double, lng: Double) -> Unit = { _, _, _, _ -> }
 ) {
     if (uiState.isAddingAddress) {
-        AddAddressDialog(
-            tag = uiState.newAddressTag,
-            address = uiState.newAddressText,
-            onTagChange = onNewAddressTagChange,
-            onAddressChange = onNewAddressTextChange,
+        com.example.testing1.screens.address.MapLocationPickerModal(
             onDismiss = onCancelNewAddress,
-            onConfirm = onSaveNewAddress
+            onAddressSaved = { tag, fullAddress, lat, lng ->
+                onSaveMapAddress(tag, fullAddress, lat, lng)
+            }
         )
     }
 

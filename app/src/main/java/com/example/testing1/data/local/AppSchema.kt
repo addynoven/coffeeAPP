@@ -63,7 +63,9 @@ val AppSchema = Schema(
             Column.text("tag"),
             Column.text("full_address"),
             Column.integer("is_default"),
-            Column.integer("last_used_timestamp")
+            Column.integer("last_used_timestamp"),
+            Column.real("latitude"),
+            Column.real("longitude")
         )
     ),
     Table(

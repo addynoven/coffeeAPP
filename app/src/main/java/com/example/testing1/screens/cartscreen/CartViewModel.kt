@@ -1,5 +1,6 @@
 package com.example.testing1.screens.cartscreen
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testing1.data.local.address.AddressEntity
@@ -7,13 +8,16 @@ import com.example.testing1.data.local.cart.CartEntity
 import com.example.testing1.data.repository.CoffeeRepository
 import com.example.testing1.data.repository.DiscountRepository
 import com.example.testing1.models.Discount
+import com.example.testing1.util.PaymentResult
 import com.example.testing1.util.PricingEngine
+import com.example.testing1.util.RazorpayManager
 import com.example.testing1.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,7 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val repository: CoffeeRepository,
-    private val discountRepository: DiscountRepository
+    private val discountRepository: DiscountRepository,
+    private val razorpayManager: RazorpayManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
@@ -36,11 +41,34 @@ class CartViewModel @Inject constructor(
     init {
         loadData()
         refreshDiscounts()
+        observePaymentResults()
     }
 
     private fun refreshDiscounts() {
         viewModelScope.launch {
             discountRepository.refreshDiscounts()
+        }
+    }
+
+    private fun observePaymentResults() {
+        viewModelScope.launch {
+            razorpayManager.paymentEvents.collect { result ->
+                when (result) {
+                    is PaymentResult.Success -> {
+                        val currentState = _uiState.value
+                        val address = currentState.selectedAddress
+                        if (address != null && currentState.cartItems.isNotEmpty()) {
+                            repository.placeOrder(address, currentState.selectedDiscount?.code)
+                            _uiState.value = _uiState.value.copy(isOrderPlaced = true)
+                            _uiEvent.send(UiEvent.ShowSnackbar("Payment Successful! Payment ID: ${result.paymentId ?: "N/A"} 🎉"))
+                        }
+                    }
+                    is PaymentResult.Error -> {
+                        val msg = result.description ?: "Payment was cancelled or failed."
+                        _uiEvent.send(UiEvent.ShowSnackbar("Payment Failed: $msg"))
+                    }
+                }
+            }
         }
     }
 
@@ -119,7 +147,29 @@ class CartViewModel @Inject constructor(
         _promoCodeInput.value = discount?.code ?: ""
     }
 
-    fun placeOrder() {
+    fun startPaymentCheckout(activity: Activity) {
+        val currentState = _uiState.value
+        val address = currentState.selectedAddress
+        if (address == null) {
+            viewModelScope.launch {
+                _uiEvent.send(UiEvent.ShowSnackbar("Please select a delivery address first!"))
+            }
+            return
+        }
+        if (currentState.cartItems.isEmpty()) return
+
+        viewModelScope.launch {
+            val user = repository.getUser().firstOrNull()
+            razorpayManager.startPayment(
+                activity = activity,
+                amountInRupees = currentState.totalPrice,
+                userEmail = user?.email,
+                userName = user?.name
+            )
+        }
+    }
+
+    fun placeOrderDirectlyWithoutPayment() {
         val currentState = _uiState.value
         val address = currentState.selectedAddress ?: return
         if (currentState.cartItems.isEmpty()) return

@@ -9,5 +9,7 @@ data class AddressEntity(
     val tag: String, // Home, Work, etc.
     val fullAddress: String,
     val isDefault: Boolean = false,
-    val lastUsedTimestamp: Long = System.currentTimeMillis()
+    val lastUsedTimestamp: Long = System.currentTimeMillis(),
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )

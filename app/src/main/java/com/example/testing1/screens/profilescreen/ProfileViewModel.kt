@@ -111,6 +111,24 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun saveMapAddress(tag: String, fullAddress: String, lat: Double, lng: Double) {
+        viewModelScope.launch {
+            val isDefault = _uiState.value.addresses.isEmpty()
+            repository.addAddress(
+                AddressEntity(
+                    addressId = java.util.UUID.randomUUID().toString(),
+                    userId = authRepository.currentUserId,
+                    tag = tag,
+                    fullAddress = fullAddress,
+                    isDefault = isDefault,
+                    latitude = lat,
+                    longitude = lng
+                )
+            )
+            _uiState.value = _uiState.value.copy(isAddingAddress = false)
+        }
+    }
+
     fun onCancelNewAddress() {
         _uiState.value = _uiState.value.copy(isAddingAddress = false, newAddressText = "")
     }

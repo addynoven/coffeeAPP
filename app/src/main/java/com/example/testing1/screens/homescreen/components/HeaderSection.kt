@@ -21,13 +21,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.testing1.R
 
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.LocationOn
+
 @Composable
 fun HeaderSection(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
     onClearSearch: () -> Unit,
     onSearchClick: () -> Unit,
-    onSearchFocusChange: (Boolean) -> Unit
+    onSearchFocusChange: (Boolean) -> Unit,
+    selectedLocationText: String = stringResource(R.string.default_location),
+    onLocationClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -42,13 +49,23 @@ fun HeaderSection(
         Spacer(modifier = Modifier.height(4.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onLocationClick() }
         ) {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = stringResource(R.string.default_location),
+                text = selectedLocationText,
                 color = Color.White,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                maxLines = 1
             )
+            Spacer(modifier = Modifier.width(4.dp))
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = stringResource(R.string.change_location_desc),

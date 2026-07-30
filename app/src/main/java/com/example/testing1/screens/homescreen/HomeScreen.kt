@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,7 +95,9 @@ fun HomeRoute(
         onFavoriteClick = onFavoriteClick,
         onProfileClick = onProfileClick,
         onSearchFocusChange = viewModel::onSearchFocusChange,
-        onRecentSearchClick = viewModel::onRecentSearchClick
+        onRecentSearchClick = viewModel::onRecentSearchClick,
+        onAddressSelected = viewModel::onAddressSelected,
+        onSaveMapAddress = viewModel::saveAddressFromMap
     )
 }
 
@@ -113,9 +117,42 @@ fun HomeScreen(
     onFavoriteClick: () -> Unit,
     onProfileClick: () -> Unit,
     onSearchFocusChange: (Boolean) -> Unit,
-    onRecentSearchClick: (String) -> Unit
+    onRecentSearchClick: (String) -> Unit,
+    onAddressSelected: (com.example.testing1.data.local.address.AddressEntity) -> Unit = {},
+    onSaveMapAddress: (tag: String, fullAddress: String, lat: Double, lng: Double) -> Unit = { _, _, _, _ -> }
 ) {
     val haptic = LocalHapticFeedback.current
+    var showAddressSheet by remember { mutableStateOf(false) }
+    var showMapPicker by remember { mutableStateOf(false) }
+
+    val displayLocationText = uiState.selectedAddress?.let {
+        "${it.tag} • ${it.fullAddress}"
+    } ?: stringResource(R.string.default_location)
+
+    if (showAddressSheet) {
+        com.example.testing1.screens.address.AddressSelectorBottomSheet(
+            addresses = uiState.addresses,
+            selectedAddressId = uiState.selectedAddress?.addressId,
+            onAddressSelected = onAddressSelected,
+            onOpenMapPicker = {
+                showAddressSheet = false
+                showMapPicker = true
+            },
+            onDismiss = { showAddressSheet = false }
+        )
+    }
+
+    if (showMapPicker) {
+        com.example.testing1.screens.address.MapLocationPickerModal(
+            initialLatitude = uiState.selectedAddress?.latitude,
+            initialLongitude = uiState.selectedAddress?.longitude,
+            onDismiss = { showMapPicker = false },
+            onAddressSaved = { tag, fullAddress, lat, lng ->
+                showMapPicker = false
+                onSaveMapAddress(tag, fullAddress, lat, lng)
+            }
+        )
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -140,15 +177,13 @@ fun HomeScreen(
                 .padding(innerPadding)
         ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.fillMaxSize()
             ) {
                 item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(320.dp)
+                            .height(280.dp)
                     ) {
                         Box(
                             modifier = Modifier
@@ -166,11 +201,13 @@ fun HomeScreen(
 
                         Column {
                             HeaderSection(
-                                uiState.searchText,
-                                onSearchTextChange,
-                                onClearSearch,
-                                onSearchClick,
-                                onSearchFocusChange
+                                searchText = uiState.searchText,
+                                onSearchTextChange = onSearchTextChange,
+                                onClearSearch = onClearSearch,
+                                onSearchClick = onSearchClick,
+                                onSearchFocusChange = onSearchFocusChange,
+                                selectedLocationText = displayLocationText,
+                                onLocationClick = { showAddressSheet = true }
                             )
                             
                             if (uiState.isSearchFocused && uiState.recentSearches.isNotEmpty()) {

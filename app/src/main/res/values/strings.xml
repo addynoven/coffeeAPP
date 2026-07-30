@@ -89,4 +89,6 @@
     <string name="status_in_delivery">In Delivery</string>
     <string name="status_delivered">Delivered</string>
     <string name="status_cancelled">Cancelled</string>
+    <string name="google_maps_key">YOUR_MAPS_API_KEY_HERE</string>
+    <string name="razorpay_key_id">rzp_test_TJk44ODzohGFtQ</string>
 </resources>

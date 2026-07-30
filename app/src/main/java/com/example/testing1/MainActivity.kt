@@ -19,19 +19,25 @@ import com.example.testing1.navigation.AppNavGraph
 import com.example.testing1.ui.theme.Testing1Theme
 import com.example.testing1.util.CloudinaryHelper
 import com.example.testing1.util.LocalCloudinaryHelper
+import com.example.testing1.util.RazorpayManager
+import com.razorpay.PaymentData
+import com.razorpay.PaymentResultWithDataListener
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.handleDeeplinks
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PaymentResultWithDataListener {
 
     @Inject
     lateinit var cloudinaryHelper: CloudinaryHelper
 
     @Inject
     lateinit var supabaseClient: SupabaseClient
+
+    @Inject
+    lateinit var razorpayManager: RazorpayManager
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -47,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             val startDestination by viewModel.startDestination.collectAsState()
             
             if (startDestination == null) {
-                // Keep showing splash or black screen until we know where to go
+                // Keep showing splash screen until ready
                 return@setContent
             }
             
@@ -73,5 +79,13 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         supabaseClient.handleDeeplinks(intent)
+    }
+
+    override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) {
+        razorpayManager.onPaymentSuccess(razorpayPaymentId, paymentData)
+    }
+
+    override fun onPaymentError(code: Int, description: String?, paymentData: PaymentData?) {
+        razorpayManager.onPaymentError(code, description, paymentData)
     }
 }

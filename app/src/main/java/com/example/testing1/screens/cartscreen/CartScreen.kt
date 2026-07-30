@@ -79,6 +79,8 @@ fun CartRoute(
         }
     }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     CartScreen(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
@@ -92,7 +94,14 @@ fun CartRoute(
         onPromoCodeChange = viewModel::onPromoCodeChange,
         onClearPromoCode = viewModel::onClearPromoCode,
         onDiscountSelected = viewModel::onDiscountSelected,
-        onPlaceOrder = viewModel::placeOrder,
+        onPlaceOrder = {
+            val activity = context as? android.app.Activity
+            if (activity != null) {
+                viewModel.startPaymentCheckout(activity)
+            } else {
+                viewModel.placeOrderDirectlyWithoutPayment()
+            }
+        },
         onDismissSuccess = viewModel::dismissOrderSuccess
     )
 }

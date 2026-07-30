@@ -3,11 +3,13 @@ package com.example.testing1.screens.homescreen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.testing1.data.local.address.AddressEntity
 import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.data.repository.CoffeeRepository
 import com.example.testing1.models.CoffeeCategory
 import com.example.testing1.util.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.UUID
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -56,6 +58,40 @@ class HomeViewModel @Inject constructor(
             repository.getRecentSearches().collect { searches ->
                 _uiState.value = _uiState.value.copy(recentSearches = searches)
             }
+        }
+        viewModelScope.launch {
+            repository.getAddresses().collect { addressList ->
+                val currentSelected = _uiState.value.selectedAddress
+                val defaultOrFirst = currentSelected ?: addressList.find { it.isDefault } ?: addressList.firstOrNull()
+                _uiState.value = _uiState.value.copy(
+                    addresses = addressList,
+                    selectedAddress = defaultOrFirst
+                )
+            }
+        }
+    }
+
+    fun onAddressSelected(address: AddressEntity) {
+        _uiState.value = _uiState.value.copy(selectedAddress = address)
+        viewModelScope.launch {
+            repository.setAsDefaultAddress(address.addressId)
+        }
+    }
+
+    fun saveAddressFromMap(tag: String, fullAddress: String, lat: Double, lng: Double) {
+        viewModelScope.launch {
+            val newAddress = AddressEntity(
+                addressId = UUID.randomUUID().toString(),
+                userId = repository.currentUserId,
+                tag = tag,
+                fullAddress = fullAddress,
+                isDefault = true,
+                latitude = lat,
+                longitude = lng
+            )
+            repository.addAddress(newAddress)
+            _uiState.value = _uiState.value.copy(selectedAddress = newAddress)
+            _uiEvent.send(UiEvent.ShowSnackbar("Address '$tag' saved successfully 📍"))
         }
     }
 

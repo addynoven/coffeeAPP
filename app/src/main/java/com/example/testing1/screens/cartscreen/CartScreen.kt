@@ -371,23 +371,71 @@ fun CartScreen(
                     )
 
                     if (uiState.availableDiscounts.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "AVAILABLE COUPONS",
+                            "Or select from available:",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            letterSpacing = 1.sp
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        uiState.availableDiscounts.forEach { discount ->
-                            BurgerKingCouponCard(
-                                discount = discount,
-                                isSelected = uiState.selectedDiscount?.code == discount.code,
-                                onApply = { onDiscountSelected(if (uiState.selectedDiscount?.code == discount.code) null else discount) }
-                            )
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            item {
+                                DiscountChip(
+                                    discount = null,
+                                    isSelected = uiState.selectedDiscount == null,
+                                    onClick = { onDiscountSelected(null) }
+                                )
+                            }
+                            items(uiState.availableDiscounts) { discount ->
+                                DiscountChip(
+                                    discount = discount,
+                                    isSelected = uiState.selectedDiscount?.code == discount.code,
+                                    onClick = { onDiscountSelected(discount) }
+                                )
+                            }
                         }
+                    } else {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Tip: Try code 'COFFEE10' for 10% off",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                        )
                     }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.payment_summary_title),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    PaymentRow(
+                        stringResource(R.string.price_label),
+                        "$ ${"%.2f".format(uiState.subtotal)}"
+                    )
+                    if (uiState.discountAmount > 0) {
+                        PaymentRow(
+                            "Discount",
+                            "- $ ${"%.2f".format(uiState.discountAmount)}",
+                            color = Color(0xFF4CAF50)
+                        )
+                    }
+                    PaymentRow(
+                        stringResource(R.string.delivery_fee_label),
+                        "$ ${"%.2f".format(uiState.deliveryFee)}"
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    PaymentRow(
+                        "Total Payment",
+                        "$ ${"%.2f".format(uiState.totalPrice)}",
+                        isBold = true
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
@@ -395,82 +443,24 @@ fun CartScreen(
 }
 
 @Composable
-fun BurgerKingCouponCard(
-    discount: com.example.testing1.models.Discount,
+fun DiscountChip(
+    discount: com.example.testing1.models.Discount?,
     isSelected: Boolean,
-    onApply: () -> Unit
+    onClick: () -> Unit
 ) {
-    Card(
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFD97706)) else null
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant)
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Ticket Coupon Green Badge (Burger King Style)
-                Surface(
-                    color = Color(0xFF10B981).copy(alpha = 0.15f),
-                    shape = RoundedCornerShape(6.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF10B981))
-                ) {
-                    Text(
-                        text = discount.code,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF047857),
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                    )
-                }
-
-                // APPLY CTA Button
-                Button(
-                    onClick = onApply,
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isSelected) Color(0xFF047857) else Color(0xFFD97706),
-                        contentColor = Color.White
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
-                    modifier = Modifier.height(34.dp)
-                ) {
-                    Text(
-                        text = if (isSelected) "APPLIED ✓" else "APPLY",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = discount.description.ifBlank { "Get extra savings on your coffee order" },
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "+ View offer details & terms",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF10B981)
-            )
-        }
+        Text(
+            text = discount?.code ?: "None",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

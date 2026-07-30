@@ -1,12 +1,27 @@
 package com.example.testing1.screens.homescreen.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,8 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +40,6 @@ import com.example.testing1.R
 import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.screens.ui_components.AnimatedFavoriteButton
 import com.example.testing1.util.LocalCloudinaryHelper
-import com.example.testing1.util.sharedElementExt
 import com.example.testing1.util.shimmerLoading
 
 @Composable
@@ -42,12 +56,12 @@ fun CoffeeCard(
         modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier.padding(8.dp)) {
             Box {
                 SubcomposeAsyncImage(
-                    model = cloudinaryHelper.optimize(item.imageUrl, width = 350),
+                    model = cloudinaryHelper.optimize(item.imageUrl, width = 300),
                     contentDescription = item.name,
                     contentScale = ContentScale.Crop,
                     loading = {
@@ -62,75 +76,41 @@ fun CoffeeCard(
                         Icon(
                             painter = painterResource(R.drawable.default_bean),
                             contentDescription = null,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .size(24.dp),
+                            modifier = Modifier.align(Alignment.Center).size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1.25f)
+                        .aspectRatio(1.2f)
                         .clip(RoundedCornerShape(12.dp))
-                        .sharedElementExt("coffee-img-${item.id}")
                 )
-
-                // Top Left Special Roastery Tag (Burger King Style)
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(6.dp),
-                    color = Color(0xFFD97706),
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-                    Text(
-                        text = "SIGNATURE",
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
-
-                // Top Right Favorite Heart Button
+                
                 AnimatedFavoriteButton(
                     isFavorite = item.isFavorite,
                     onClick = onToggleFavorite,
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
+                        .align(Alignment.TopStart)
                         .background(
-                            Color.Black.copy(alpha = 0.3f),
+                            Color.Black.copy(alpha = 0.2f),
                             CircleShape
                         ),
-                    size = 28
+                    size = 32
                 )
             }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = item.getLocalizedName(language).uppercase(),
-                fontWeight = FontWeight.Black,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                text = item.getLocalizedName(language),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface
             )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
             Text(
                 text = item.getLocalizedDescription(language),
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Bottom Row: Price + ADD + Pill Button (Burger King Style)
+            Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -138,24 +118,21 @@ fun CoffeeCard(
             ) {
                 Text(
                     text = "$ ${item.price}",
-                    fontWeight = FontWeight.Black,
-                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-
-                // ADD + Pill Button with Accent Border
-                OutlinedButton(
-                    onClick = onClick,
-                    modifier = Modifier.height(32.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.5.dp, Color(0xFFD97706)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD97706)),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "ADD +",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.add_to_cart_desc),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }

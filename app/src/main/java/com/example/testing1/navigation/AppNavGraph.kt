@@ -22,6 +22,8 @@ import com.example.testing1.screens.trackorderscreen.TrackOrderRoute
 import com.example.testing1.screens.welcomescreen.WelcomeScreen
 
 
+import com.example.testing1.screens.splashscreen.SplashScreen
+
 @Composable
 fun AppNavGraph(
     viewModel: MainViewModel
@@ -29,12 +31,21 @@ fun AppNavGraph(
     val navController = rememberNavController()
     val startDestination by viewModel.startDestination.collectAsState()
 
-    if (startDestination == null) return
-
     NavHost(
         navController = navController,
-        startDestination = startDestination!!
+        startDestination = Routes.SplashScreen
     ) {
+        composable<Routes.SplashScreen> {
+            SplashScreen(
+                onSplashFinished = {
+                    val target = startDestination ?: Routes.WelcomeScreen
+                    navController.navigate(target) {
+                        popUpTo(Routes.SplashScreen) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<Routes.WelcomeScreen> {
             WelcomeScreen(navController)
         }

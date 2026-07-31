@@ -68,6 +68,7 @@ fun ProfileRoute(
     onProfileClick: () -> Unit,
     onOrdersClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onLogoutSuccess: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -92,7 +93,10 @@ fun ProfileRoute(
         onCancelNewAddress = viewModel::onCancelNewAddress,
         onSetDefaultAddress = viewModel::onSetDefaultAddress,
         onDeleteAddress = viewModel::onDeleteAddress,
-        onLogoutClick = viewModel::logout,
+        onLogoutClick = {
+            viewModel.logout()
+            onLogoutSuccess()
+        },
         onSaveMapAddress = viewModel::saveMapAddress
     )
 }

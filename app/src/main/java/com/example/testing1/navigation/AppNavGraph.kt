@@ -137,6 +137,9 @@ fun AppNavGraph(
 
         composable<Routes.FavoriteScreen> {
             FavoriteRoute(
+                onItemClick = { item ->
+                    navController.navigate(Routes.DetailScreen(item.id))
+                },
                 onHomeClick = {
                     navController.navigate(Routes.HomeScreen)
                 },

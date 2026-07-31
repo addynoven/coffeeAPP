@@ -35,8 +35,14 @@ import com.example.testing1.data.local.coffee.CoffeeEntity
 import com.example.testing1.util.LocalCloudinaryHelper
 import com.example.testing1.util.shimmerLoading
 
+import androidx.compose.foundation.clickable
+
 @Composable
-fun FavoriteItemCard(item: CoffeeEntity, onRemoveClick: () -> Unit) {
+fun FavoriteItemCard(
+    item: CoffeeEntity,
+    onItemClick: () -> Unit,
+    onRemoveClick: () -> Unit
+) {
     val cloudinaryHelper = LocalCloudinaryHelper.current
     val language = LocalConfiguration.current.locales[0].language
 
@@ -45,6 +51,7 @@ fun FavoriteItemCard(item: CoffeeEntity, onRemoveClick: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
+            .clickable { onItemClick() }
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

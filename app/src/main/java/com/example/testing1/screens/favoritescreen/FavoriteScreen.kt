@@ -54,6 +54,7 @@ fun FavoriteScreenPreview() {
 
 @Composable
 fun FavoriteRoute(
+    onItemClick: (CoffeeEntity) -> Unit = {},
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onFavoriteClick: () -> Unit,
@@ -64,6 +65,7 @@ fun FavoriteRoute(
 
     FavoriteScreen(
         uiState = uiState,
+        onItemClick = onItemClick,
         onHomeClick = onHomeClick,
         onCartClick = onCartClick,
         onFavoriteClick = onFavoriteClick,
@@ -75,6 +77,7 @@ fun FavoriteRoute(
 @Composable
 fun FavoriteScreen(
     uiState: FavoriteUiState,
+    onItemClick: (CoffeeEntity) -> Unit = {},
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onFavoriteClick: () -> Unit,
@@ -127,6 +130,7 @@ fun FavoriteScreen(
                     items(uiState.favoriteItems) { item ->
                         FavoriteItemCard(
                             item = item,
+                            onItemClick = { onItemClick(item) },
                             onRemoveClick = { onRemoveFavorite(item) }
                         )
                     }

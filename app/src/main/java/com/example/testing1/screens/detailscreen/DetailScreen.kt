@@ -158,7 +158,7 @@ fun DetailScreen(
                     },
                     modifier = Modifier
                         .background(
-                            Color.Black.copy(alpha = 0.2f),
+                            MaterialTheme.colorScheme.surfaceVariant,
                             CircleShape
                         ),
                     size = 40

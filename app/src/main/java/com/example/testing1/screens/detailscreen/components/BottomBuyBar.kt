@@ -27,7 +27,7 @@ import com.example.testing1.ui.theme.CoffeeBrown
 fun BottomBuyBar(price: Double, onAddToCartClick: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = androidx.compose.material3.MaterialTheme.colorScheme.surface,
         shadowElevation = 8.dp,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
@@ -39,7 +39,11 @@ fun BottomBuyBar(price: Double, onAddToCartClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(text = stringResource(R.string.price_label), color = Color.Gray, fontSize = 14.sp)
+                Text(
+                    text = stringResource(R.string.price_label),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 14.sp
+                )
                 Text(
                     text = "$ $price",
                     color = CoffeeBrown,
@@ -52,7 +56,10 @@ fun BottomBuyBar(price: Double, onAddToCartClick: () -> Unit) {
                 modifier = Modifier
                     .height(56.dp)
                     .fillMaxWidth(0.7f),
-                colors = ButtonDefaults.buttonColors(containerColor = CoffeeBrown),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = CoffeeBrown,
+                    contentColor = Color.White
+                ),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(

@@ -54,19 +54,17 @@ fun AnimatedFavoriteButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        if (composition == null) {
+        if (!isFavorite || composition == null) {
             Icon(
                 imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                tint = if (isFavorite) Color.Red else Color.White,
-                modifier = Modifier
-                    .size(size.dp)
-                    .scale(1.3f)
+                contentDescription = "Favorite",
+                tint = if (isFavorite) Color.Red else androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size((size * 0.6).dp)
             )
         } else {
             LottieAnimation(
                 composition = composition,
-                progress = { if (isFavorite) progress else 0f },
+                progress = { progress },
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()

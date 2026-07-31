@@ -36,6 +36,12 @@ fun LoginRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) {
+            onLoginSuccess()
+        }
+    }
+
     LoginScreen(
         uiState = uiState,
         onEmailChange = viewModel::onEmailChange,

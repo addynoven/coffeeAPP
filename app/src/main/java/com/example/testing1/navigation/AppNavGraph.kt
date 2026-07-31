@@ -24,12 +24,39 @@ import com.example.testing1.screens.welcomescreen.WelcomeScreen
 
 import com.example.testing1.screens.splashscreen.SplashScreen
 
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+
 @Composable
 fun AppNavGraph(
     viewModel: MainViewModel
 ) {
     val navController = rememberNavController()
     val startDestination by viewModel.startDestination.collectAsState()
+
+    LaunchedEffect(startDestination) {
+        val dest = startDestination ?: return@LaunchedEffect
+        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        Log.d("AppNavGraph", "startDestination changed: $dest, current route: $currentRoute")
+
+        when (dest) {
+            is Routes.HomeScreen -> {
+                if (currentRoute != null && (currentRoute.contains("LoginScreen") || currentRoute.contains("SignUpScreen"))) {
+                    navController.navigate(Routes.WelcomeSplash) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+            is Routes.LoginScreen -> {
+                if (currentRoute != null && !currentRoute.contains("LoginScreen") && !currentRoute.contains("WelcomeScreen") && !currentRoute.contains("SplashScreen") && !currentRoute.contains("SignOutSplash")) {
+                    navController.navigate(Routes.SignOutSplash) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -56,7 +83,7 @@ fun AppNavGraph(
                 displayDurationMillis = 1200L,
                 onSplashFinished = {
                     navController.navigate(Routes.HomeScreen) {
-                        popUpTo(Routes.WelcomeSplash) { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -69,7 +96,7 @@ fun AppNavGraph(
                 displayDurationMillis = 1200L,
                 onSplashFinished = {
                     navController.navigate(Routes.LoginScreen) {
-                        popUpTo(Routes.SignOutSplash) { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -85,8 +112,8 @@ fun AppNavGraph(
                     navController.navigate(Routes.SignUpScreen)
                 },
                 onLoginSuccess = {
-                    navController.navigate(Routes.HomeScreen) {
-                        popUpTo(Routes.LoginScreen) { inclusive = true }
+                    navController.navigate(Routes.WelcomeSplash) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

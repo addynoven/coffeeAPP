@@ -22,15 +22,15 @@ class AuthViewModel @Inject constructor(
     val uiState: StateFlow<AuthUiState> = _uiState
 
     fun onEmailChange(email: String) {
-        _uiState.value = _uiState.value.copy(email = email, error = null)
+        _uiState.value = _uiState.value.copy(email = email, error = null, isAuthenticated = false)
     }
 
     fun onPasswordChange(password: String) {
-        _uiState.value = _uiState.value.copy(password = password, error = null)
+        _uiState.value = _uiState.value.copy(password = password, error = null, isAuthenticated = false)
     }
 
     fun onNameChange(name: String) {
-        _uiState.value = _uiState.value.copy(name = name, error = null)
+        _uiState.value = _uiState.value.copy(name = name, error = null, isAuthenticated = false)
     }
 
     fun login() {
@@ -46,7 +46,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.value.password
                 )
                 settingsRepository.setHasSeenWelcome(true)
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                _uiState.value = _uiState.value.copy(isLoading = false, isAuthenticated = true)
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "login() failed: ${e.message}")
                 val errorMessage =
@@ -56,7 +56,7 @@ class AuthViewModel @Inject constructor(
                         e.message
                     }
                 _uiState.value =
-                    _uiState.value.copy(error = errorMessage, isLoading = false)
+                    _uiState.value.copy(error = errorMessage, isLoading = false, isAuthenticated = false)
             }
         }
     }
@@ -83,12 +83,13 @@ class AuthViewModel @Inject constructor(
                 // Check if we got a session automatically
                 if (authRepository.sessionStatus.value is SessionStatus.Authenticated) {
                     settingsRepository.setHasSeenWelcome(true)
-                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _uiState.value = _uiState.value.copy(isLoading = false, isAuthenticated = true)
                 } else {
                     // Confirmation required
                     _uiState.value = _uiState.value.copy(
                         successMessage = "Success! Please check your email to confirm your account.",
-                        isLoading = false
+                        isLoading = false,
+                        isAuthenticated = false
                     )
                 }
             } catch (e: Exception) {
@@ -100,7 +101,7 @@ class AuthViewModel @Inject constructor(
                         e.message
                     }
                 _uiState.value =
-                    _uiState.value.copy(error = errorMessage, isLoading = false)
+                    _uiState.value.copy(error = errorMessage, isLoading = false, isAuthenticated = false)
             }
         }
     }
@@ -123,11 +124,11 @@ class AuthViewModel @Inject constructor(
                 )
                 Log.d("AuthViewModel", "authRepository.signInWithIdToken() finished")
                 settingsRepository.setHasSeenWelcome(true)
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                _uiState.value = _uiState.value.copy(isLoading = false, isAuthenticated = true)
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Google Sign-In failed in repository: ${e.message}", e)
                 _uiState.value =
-                    _uiState.value.copy(error = e.message, isLoading = false)
+                    _uiState.value.copy(error = e.message, isLoading = false, isAuthenticated = false)
             }
         }
     }
@@ -146,7 +147,7 @@ class AuthViewModel @Inject constructor(
             message.contains("invalid login credentials") -> "Invalid email or password."
             else -> message
         }
-        _uiState.value = _uiState.value.copy(error = friendlyMessage, isLoading = false)
+        _uiState.value = _uiState.value.copy(error = friendlyMessage, isLoading = false, isAuthenticated = false)
     }
 }
 
@@ -155,6 +156,7 @@ data class AuthUiState(
     val password: String = "",
     val name: String = "",
     val isLoading: Boolean = false,
+    val isAuthenticated: Boolean = false,
     val error: String? = null,
     val successMessage: String? = null
 )

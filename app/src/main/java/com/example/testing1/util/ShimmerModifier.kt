@@ -1,5 +1,7 @@
 package com.example.testing1.util
 
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import com.valentinilk.shimmer.shimmer
@@ -12,7 +14,9 @@ fun Modifier.shimmerLoading(
     enabled: Boolean = true
 ): Modifier = composed {
     if (enabled) {
-        this.shimmer()
+        this
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+            .shimmer()
     } else {
         this
     }

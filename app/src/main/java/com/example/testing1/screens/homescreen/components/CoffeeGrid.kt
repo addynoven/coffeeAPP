@@ -33,14 +33,22 @@ fun CoffeeGrid(
     onItemClick: (CoffeeEntity) -> Unit,
     onToggleFavorite: (CoffeeEntity) -> Unit
 ) {
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val columnCount = when {
+        screenWidth < 600.dp -> 2       // Compact (Phone)
+        screenWidth < 840.dp -> 3       // Medium (Foldable / Small Tablet)
+        else -> 4                       // Expanded (Tablet)
+    }
+
     if (isLoading) {
-        CoffeeGridSkeleton()
+        CoffeeGridSkeleton(columnCount = columnCount)
     } else {
         Column(
             modifier = Modifier.padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items.chunked(2).forEach { rowItems ->
+            items.chunked(columnCount).forEach { rowItems ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -53,7 +61,7 @@ fun CoffeeGrid(
                             onToggleFavorite = { onToggleFavorite(item) }
                         )
                     }
-                    if (rowItems.size < 2) {
+                    repeat(columnCount - rowItems.size) {
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 }
@@ -63,7 +71,7 @@ fun CoffeeGrid(
 }
 
 @Composable
-fun CoffeeGridSkeleton() {
+fun CoffeeGridSkeleton(columnCount: Int = 2) {
     Column(
         modifier = Modifier.padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -73,8 +81,9 @@ fun CoffeeGridSkeleton() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                CoffeeCardSkeleton(modifier = Modifier.weight(1f))
-                CoffeeCardSkeleton(modifier = Modifier.weight(1f))
+                repeat(columnCount) {
+                    CoffeeCardSkeleton(modifier = Modifier.weight(1f))
+                }
             }
         }
     }

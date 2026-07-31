@@ -98,6 +98,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation("androidx.navigation:navigation-compose:2.9.8")
+    implementation("androidx.compose.animation:animation")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

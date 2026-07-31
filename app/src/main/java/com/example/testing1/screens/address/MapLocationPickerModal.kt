@@ -80,6 +80,7 @@ fun MapLocationPickerModal(
     remember {
         Configuration.getInstance().userAgentValue = "CoffeeAPP-Android-Delivery/1.0 (dev@coffeeapp.io)"
         Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
+        true
     }
 
     val cartoDbTileSource = remember {
@@ -253,159 +254,58 @@ fun MapLocationPickerModal(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
         Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp),
-            color = MaterialTheme.colorScheme.background,
-            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // Top Bar with Dismiss Button
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+            Scaffold(
+                topBar = {
+                    Surface(
+                        tonalElevation = 4.dp,
+                        shadowElevation = 4.dp,
+                        color = MaterialTheme.colorScheme.surface
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Select Location",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                        IconButton(
-                            onClick = onDismiss,
+                        Row(
                             modifier = Modifier
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .size(36.dp)
+                                .fillMaxWidth()
+                                .statusBarsPadding()
+                                .padding(horizontal = 20.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.size(20.dp))
-                        }
-                    }
-
-                    // Interactive Map View Container
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    ) {
-                        AndroidView(
-                            modifier = Modifier.fillMaxSize(),
-                            factory = { ctx ->
-                                MapView(ctx).apply {
-                                    setTileSource(cartoDbTileSource)
-                                    setMultiTouchControls(true)
-                                    controller.setZoom(16.0)
-                                    controller.setCenter(centerGeoPoint)
-                                    addMapListener(object : MapListener {
-                                        override fun onScroll(event: ScrollEvent?): Boolean {
-                                            val center = mapCenter
-                                            updateAddressForLocation(center.latitude, center.longitude)
-                                            return true
-                                        }
-
-                                        override fun onZoom(event: ZoomEvent?): Boolean {
-                                            val center = mapCenter
-                                            updateAddressForLocation(center.latitude, center.longitude)
-                                            return true
-                                        }
-                                    })
-                                    osmMapViewState = this
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    onClick = onDismiss,
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Close",
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
-                            },
-                            update = { mapView ->
-                                osmMapViewState = mapView
-                            }
-                        )
-
-                        // Center Pin Marker fixed at center
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Target Location",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(52.dp)
-                                )
-                                Spacer(modifier = Modifier.height(26.dp))
-                            }
-                        }
-
-                        // Floating Map Controls (Right Side: Zoom In, Zoom Out, GPS Location)
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            // Zoom In Button
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    osmMapViewState?.controller?.zoomIn()
-                                },
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = "Zoom In")
-                            }
-
-                            // Zoom Out Button
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    osmMapViewState?.controller?.zoomOut()
-                                },
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            ) {
-                                Icon(Icons.Default.Remove, contentDescription = "Zoom Out")
-                            }
-
-                            // GPS Current Location FAB
-                            FloatingActionButton(
-                                onClick = {
-                                    if (hasLocationPermission) {
-                                        moveToCurrentGpsLocation()
-                                    } else {
-                                        permissionLauncher.launch(
-                                            arrayOf(
-                                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                                Manifest.permission.ACCESS_COARSE_LOCATION
-                                            )
-                                        )
-                                    }
-                                },
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MyLocation,
-                                    contentDescription = "My GPS Location"
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = "Select Location",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
                     }
-
+                },
+                bottomBar = {
                     // Bottom Address Card & Label Selector
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding(),
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(12.dp)
@@ -506,131 +406,236 @@ fun MapLocationPickerModal(
                         }
                     }
                 }
-
-                // Floating Auto-Suggest Search Bar Overlay (Top)
-                Column(
+            ) { innerPadding ->
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 60.dp)
+                        .fillMaxSize()
+                        .padding(innerPadding)
                 ) {
-                    ElevatedCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    // Interactive Map View
+                    AndroidView(
+                        modifier = Modifier.fillMaxSize(),
+                        factory = { ctx ->
+                            MapView(ctx).apply {
+                                setTileSource(cartoDbTileSource)
+                                setMultiTouchControls(true)
+                                controller.setZoom(16.0)
+                                controller.setCenter(centerGeoPoint)
+                                addMapListener(object : MapListener {
+                                    override fun onScroll(event: ScrollEvent?): Boolean {
+                                        val center = mapCenter
+                                        updateAddressForLocation(center.latitude, center.longitude)
+                                        return true
+                                    }
+
+                                    override fun onZoom(event: ZoomEvent?): Boolean {
+                                        val center = mapCenter
+                                        updateAddressForLocation(center.latitude, center.longitude)
+                                        return true
+                                    }
+                                })
+                                osmMapViewState = this
+                            }
+                        },
+                        update = { mapView ->
+                            osmMapViewState = mapView
+                        }
+                    )
+
+                    // Center Pin Marker fixed at center
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search place",
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "Target Location",
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(8.dp)
+                                modifier = Modifier.size(52.dp)
                             )
-                            TextField(
-                                value = searchQuery,
-                                onValueChange = { text ->
-                                    searchQuery = text
-                                    searchDebounceJob?.cancel()
-                                    searchDebounceJob = coroutineScope.launch {
-                                        delay(350L) // 350ms debounce
-                                        performSearch(text)
-                                    }
-                                },
-                                placeholder = { Text("Search location or area...", fontSize = 14.sp) },
-                                singleLine = true,
-                                modifier = Modifier.weight(1f),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                                    unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                                    disabledContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                                    focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                                    unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
-                                )
-                            )
-
-                            if (isSearching) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier
-                                        .size(20.dp)
-                                        .padding(end = 4.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            }
-
-                            if (searchQuery.isNotEmpty()) {
-                                IconButton(
-                                    onClick = {
-                                        searchQuery = ""
-                                        searchResults = emptyList()
-                                        showSuggestions = false
-                                    }
-                                ) {
-                                    Icon(Icons.Default.Close, contentDescription = "Clear search", modifier = Modifier.size(18.dp))
-                                }
-                            }
+                            Spacer(modifier = Modifier.height(26.dp))
                         }
                     }
 
-                    // Auto-suggest suggestions overlay popup list
-                    AnimatedVisibility(
-                        visible = showSuggestions && searchResults.isNotEmpty(),
-                        enter = fadeIn(),
-                        exit = fadeOut()
+                    // Floating Map Controls (Right Side: Zoom In, Zoom Out, GPS Location)
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Zoom In Button
+                        SmallFloatingActionButton(
+                            onClick = {
+                                osmMapViewState?.controller?.zoomIn()
+                            },
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Zoom In")
+                        }
+
+                        // Zoom Out Button
+                        SmallFloatingActionButton(
+                            onClick = {
+                                osmMapViewState?.controller?.zoomOut()
+                            },
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ) {
+                            Icon(Icons.Default.Remove, contentDescription = "Zoom Out")
+                        }
+
+                        // GPS Current Location FAB
+                        FloatingActionButton(
+                            onClick = {
+                                if (hasLocationPermission) {
+                                    moveToCurrentGpsLocation()
+                                } else {
+                                    permissionLauncher.launch(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION
+                                        )
+                                    )
+                                }
+                            },
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MyLocation,
+                                contentDescription = "My GPS Location"
+                            )
+                        }
+                    }
+
+                    // Floating Auto-Suggest Search Bar Overlay
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
                     ) {
                         ElevatedCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 6.dp)
-                                .heightIn(max = 240.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
-                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
+                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
                             colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentPadding = PaddingValues(vertical = 4.dp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                items(searchResults) { item ->
-                                    Row(
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search place",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                                TextField(
+                                    value = searchQuery,
+                                    onValueChange = { text ->
+                                        searchQuery = text
+                                        searchDebounceJob?.cancel()
+                                        searchDebounceJob = coroutineScope.launch {
+                                            delay(350L) // 350ms debounce
+                                            performSearch(text)
+                                        }
+                                    },
+                                    placeholder = { Text("Search location or area...", fontSize = 14.sp) },
+                                    singleLine = true,
+                                    modifier = Modifier.weight(1f),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        disabledContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                                    )
+                                )
+
+                                if (isSearching) {
+                                    CircularProgressIndicator(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                val point = GeoPoint(item.lat, item.lon)
-                                                centerGeoPoint = point
-                                                fullAddress = item.displayName
-                                                osmMapViewState?.controller?.animateTo(point, 17.0, 800L)
-                                                showSuggestions = false
-                                                searchQuery = ""
-                                            }
-                                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                            .size(20.dp)
+                                            .padding(end = 4.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                }
+
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(
+                                        onClick = {
+                                            searchQuery = ""
+                                            searchResults = emptyList()
+                                            showSuggestions = false
+                                        }
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.LocationOn,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Text(
-                                            text = item.displayName,
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
+                                        Icon(Icons.Default.Close, contentDescription = "Clear search", modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                            }
+                        }
+
+                        // Auto-suggest suggestions overlay
+                        AnimatedVisibility(
+                            visible = showSuggestions && searchResults.isNotEmpty(),
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 6.dp)
+                                    .heightIn(max = 240.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 10.dp),
+                                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+                            ) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(vertical = 4.dp)
+                                ) {
+                                    items(searchResults) { item ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    val point = GeoPoint(item.lat, item.lon)
+                                                    centerGeoPoint = point
+                                                    fullAddress = item.displayName
+                                                    osmMapViewState?.controller?.animateTo(point, 17.0, 800L)
+                                                    showSuggestions = false
+                                                    searchQuery = ""
+                                                }
+                                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.LocationOn,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Text(
+                                                text = item.displayName,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(horizontal = 16.dp),
+                                            thickness = 0.5.dp,
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                                         )
                                     }
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        thickness = 0.5.dp,
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                    )
                                 }
                             }
                         }

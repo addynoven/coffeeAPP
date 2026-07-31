@@ -24,7 +24,7 @@ class MainViewModel @Inject constructor(
     val themeConfig: StateFlow<ThemeConfig> = settingsRepository.getThemeConfig()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(0),
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = ThemeConfig.FOLLOW_SYSTEM
         )
 
@@ -43,7 +43,7 @@ class MainViewModel @Inject constructor(
         dest
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(0),
+        started = SharingStarted.WhileSubscribed(5000),
         initialValue = null
     )
 }

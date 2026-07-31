@@ -50,12 +50,6 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener {
         enableEdgeToEdge()
         setContent {
             val themeConfig by viewModel.themeConfig.collectAsState()
-            val startDestination by viewModel.startDestination.collectAsState()
-            
-            if (startDestination == null) {
-                // Keep showing splash screen until ready
-                return@setContent
-            }
             
             val useDarkTheme = when (themeConfig) {
                 ThemeConfig.FOLLOW_SYSTEM -> isSystemInDarkTheme()

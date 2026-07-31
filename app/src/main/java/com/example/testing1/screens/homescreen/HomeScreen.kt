@@ -174,7 +174,7 @@ fun HomeScreen(
             onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
@@ -194,6 +194,7 @@ fun HomeScreen(
                                         )
                                     )
                                 )
+                                .statusBarsPadding()
                         ) {
                             HeaderSection(
                                 searchText = uiState.searchText,

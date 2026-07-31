@@ -31,23 +31,6 @@ fun AppNavGraph(
     val navController = rememberNavController()
     val startDestination by viewModel.startDestination.collectAsState()
 
-    androidx.compose.runtime.LaunchedEffect(startDestination) {
-        when (startDestination) {
-            is Routes.HomeScreen -> {
-                navController.navigate(Routes.WelcomeSplash) {
-                    popUpTo(Routes.LoginScreen) { inclusive = true }
-                    popUpTo(Routes.WelcomeScreen) { inclusive = true }
-                }
-            }
-            is Routes.LoginScreen -> {
-                navController.navigate(Routes.SignOutSplash) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-            else -> {}
-        }
-    }
-
     NavHost(
         navController = navController,
         startDestination = Routes.SplashScreen

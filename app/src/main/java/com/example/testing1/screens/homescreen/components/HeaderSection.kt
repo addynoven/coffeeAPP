@@ -94,11 +94,11 @@ fun HeaderSection(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF22150F)),
+                    .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_coffee_logo),
+                    painter = painterResource(id = R.drawable.ic_app_logo),
                     contentDescription = "Coffee House Logo",
                     modifier = Modifier.fillMaxSize()
                 )

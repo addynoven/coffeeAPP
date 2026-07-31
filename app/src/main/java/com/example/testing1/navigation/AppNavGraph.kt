@@ -34,27 +34,19 @@ fun AppNavGraph(
     val navController = rememberNavController()
     val startDestination by viewModel.startDestination.collectAsState()
 
+    // Automatically navigate on authentication state change (login / logout)
     LaunchedEffect(startDestination) {
         val dest = startDestination ?: return@LaunchedEffect
-        val currentRoute = navController.currentBackStackEntry?.destination?.route
-        Log.d("AppNavGraph", "startDestination changed: $dest, current route: $currentRoute")
+        val currentRoute = navController.currentBackStackEntry?.destination?.route ?: return@LaunchedEffect
 
-        when (dest) {
-            is Routes.HomeScreen -> {
-                if (currentRoute != null && (currentRoute.contains("LoginScreen") || currentRoute.contains("SignUpScreen"))) {
-                    navController.navigate(Routes.WelcomeSplash) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
+        if (dest is Routes.HomeScreen && currentRoute.contains("LoginScreen")) {
+            navController.navigate(Routes.HomeScreen) {
+                popUpTo(0) { inclusive = true }
             }
-            is Routes.LoginScreen -> {
-                if (currentRoute != null && !currentRoute.contains("LoginScreen") && !currentRoute.contains("WelcomeScreen") && !currentRoute.contains("SplashScreen") && !currentRoute.contains("SignOutSplash")) {
-                    navController.navigate(Routes.SignOutSplash) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
+        } else if (dest is Routes.LoginScreen && !currentRoute.contains("LoginScreen") && !currentRoute.contains("WelcomeScreen") && !currentRoute.contains("SplashScreen")) {
+            navController.navigate(Routes.LoginScreen) {
+                popUpTo(0) { inclusive = true }
             }
-            else -> {}
         }
     }
 
@@ -76,32 +68,6 @@ fun AppNavGraph(
             )
         }
 
-        composable<Routes.WelcomeSplash> {
-            SplashScreen(
-                title = "Welcome Back! ☕",
-                subtitle = "Brewing your experience...",
-                displayDurationMillis = 1200L,
-                onSplashFinished = {
-                    navController.navigate(Routes.HomeScreen) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        composable<Routes.SignOutSplash> {
-            SplashScreen(
-                title = "See You Soon! 👋",
-                subtitle = "Signing out safely...",
-                displayDurationMillis = 1200L,
-                onSplashFinished = {
-                    navController.navigate(Routes.LoginScreen) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
-        }
-
         composable<Routes.WelcomeScreen> {
             WelcomeScreen(navController)
         }
@@ -112,7 +78,7 @@ fun AppNavGraph(
                     navController.navigate(Routes.SignUpScreen)
                 },
                 onLoginSuccess = {
-                    navController.navigate(Routes.WelcomeSplash) {
+                    navController.navigate(Routes.HomeScreen) {
                         popUpTo(0) { inclusive = true }
                     }
                 }

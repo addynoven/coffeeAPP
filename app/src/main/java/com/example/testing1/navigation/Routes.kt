@@ -8,12 +8,6 @@ sealed class Routes {
     data object SplashScreen : Routes()
 
     @Serializable
-    data object WelcomeSplash : Routes()
-
-    @Serializable
-    data object SignOutSplash : Routes()
-
-    @Serializable
     data object WelcomeScreen : Routes()
 
     @Serializable

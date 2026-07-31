@@ -100,6 +100,7 @@ fun HeaderSection(
                 Image(
                     painter = painterResource(id = R.drawable.ic_app_logo),
                     contentDescription = "Coffee House Logo",
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
             }

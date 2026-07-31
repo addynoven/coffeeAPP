@@ -86,6 +86,7 @@ fun LoginScreen(
             Image(
                 painter = painterResource(id = R.drawable.ic_app_logo),
                 contentDescription = "Coffee App Logo",
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
         }
